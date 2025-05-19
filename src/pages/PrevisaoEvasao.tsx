@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import MainLayout from '@/components/layout/MainLayout';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
@@ -335,7 +334,9 @@ const PrevisaoEvasao = () => {
                       <span className="text-sm font-medium">Inverno (Jun-Ago)</span>
                       <span className="text-sm font-medium text-academy-red">35%</span>
                     </div>
-                    <Progress value={35} className="h-2 bg-secondary" indicatorClassName="bg-academy-red" />
+                    <Progress value={35} className="h-2 bg-secondary">
+                      <div className="h-full bg-destructive" style={{ width: `${35 * 100}%` }} />
+                    </Progress>
                   </div>
                   
                   <div className="flex flex-col space-y-1">

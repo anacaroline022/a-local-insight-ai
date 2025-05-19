@@ -10,6 +10,7 @@ import { AuthProvider, useAuth } from "./context/AuthContext";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import PrevisaoEvasao from "./pages/PrevisaoEvasao";
+import AulasTematicasRetro from "./pages/AulasTematicasRetro";
 import NotFound from "./pages/NotFound";
 
 // Create a client
@@ -60,6 +61,14 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute>
             <PrevisaoEvasao />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/aulas-tematicas" 
+        element={
+          <ProtectedRoute>
+            <AulasTematicasRetro />
           </ProtectedRoute>
         } 
       />
