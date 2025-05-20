@@ -60,8 +60,8 @@ const mainItems: SidebarItem[] = [
 const bottomItems: SidebarItem[] = [
   { title: 'Configurações', path: '/configuracoes', icon: Settings },
   { title: 'Perfil', path: '/perfil', icon: User },
-  { title: 'Idiomas', path: '/idiomas', icon: Globe },
   { title: 'Nutrição', path: '/nutricao', icon: Utensils },
+  { title: 'Idiomas', path: '/idiomas', icon: Globe },
 ];
 
 const Sidebar: React.FC<{ collapsed: boolean; setCollapsed: (value: boolean) => void }> = ({
