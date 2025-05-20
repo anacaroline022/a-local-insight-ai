@@ -1,331 +1,347 @@
 
 import React, { useState } from 'react';
 import MainLayout from '@/components/layout/MainLayout';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { Brush, PanelRight, Award, Layout, Palette, Type, Slider, Check } from 'lucide-react';
+import { 
+  Brush, 
+  Palette, 
+  Type, 
+  Layers, 
+  Sliders, 
+  Download, 
+  RefreshCw,
+  Settings, 
+  Grid, 
+  Save,
+  MoveLeft,
+  Monitor,
+  Moon,
+  Sun,
+  ChevronDown,
+} from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 const DesignIntuitivo = () => {
-  const [mode, setMode] = useState<'light' | 'dark'>('dark');
-  const [primaryColor, setPrimaryColor] = useState('#9b87f5');
-  const [selectedFont, setSelectedFont] = useState('SF Pro Display');
-  const [borderRadius, setBorderRadius] = useState(12);
-  const [showPreview, setShowPreview] = useState(true);
-  
-  // Simulating real-time saving
-  const [saving, setSaving] = useState(false);
-  const [lastSaved, setLastSaved] = useState('agora');
-  
-  const handleColorChange = (color) => {
-    setPrimaryColor(color);
-    simulateSaving();
-  };
-  
-  const handleFontChange = (font) => {
-    setSelectedFont(font);
-    simulateSaving();
-  };
-  
-  const handleBorderRadiusChange = (radius) => {
-    setBorderRadius(radius);
-    simulateSaving();
-  };
-  
-  const handleModeToggle = () => {
-    setMode(mode === 'dark' ? 'light' : 'dark');
-    simulateSaving();
-  };
-  
-  const simulateSaving = () => {
-    setSaving(true);
-    setTimeout(() => {
-      setSaving(false);
-      setLastSaved('agora');
-    }, 800);
-  };
-  
-  const colors = ['#9b87f5', '#1EAEDB', '#D946EF', '#4CAF50', '#FF5252', '#FF9800'];
-  const fonts = ['SF Pro Display', 'SF Pro Text', 'SF Mono', 'Helvetica Neue'];
-  const radiusOptions = [4, 8, 12, 16, 20];
-  
+  const [activeTab, setActiveTab] = useState('design');
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
   return (
     <MainLayout
       pageTitle="Design Intuitivo"
-      pageSubtitle="Personalize a aparência do seu aplicativo"
-      headerImage="https://images.unsplash.com/photo-1581291518633-83b4ebd1d83e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80"
+      pageSubtitle="Personalize a aparência da sua academia"
+      headerImage="https://images.unsplash.com/photo-1559028012-481c04fa702d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2336&q=80"
     >
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Left Column - Design Controls */}
-        <div className="lg:col-span-1 space-y-6">
-          <Tabs defaultValue="palette">
-            <TabsList className="w-full grid grid-cols-3">
-              <TabsTrigger value="palette" className="flex items-center gap-2">
-                <Palette className="h-4 w-4" />
-                <span className="hidden sm:inline">Cores</span>
-              </TabsTrigger>
-              <TabsTrigger value="typography" className="flex items-center gap-2">
-                <Type className="h-4 w-4" />
-                <span className="hidden sm:inline">Tipografia</span>
-              </TabsTrigger>
-              <TabsTrigger value="ui" className="flex items-center gap-2">
-                <Layout className="h-4 w-4" />
-                <span className="hidden sm:inline">UI</span>
-              </TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="palette" className="mt-6">
-              <div className="space-y-4">
-                <h3 className="text-lg font-medium">Cor Primária</h3>
-                <div className="grid grid-cols-3 gap-3">
-                  {colors.map((color) => (
-                    <button
-                      key={color}
-                      className={`w-full h-12 rounded-md transition-all ${
-                        primaryColor === color ? 'ring-2 ring-offset-2 ring-offset-background ring-primary' : ''
-                      }`}
-                      style={{ backgroundColor: color }}
-                      onClick={() => handleColorChange(color)}
-                      aria-label={`Selecionar cor ${color}`}
-                    />
-                  ))}
-                </div>
-                
-                <div className="pt-4">
-                  <h3 className="text-lg font-medium">Modo</h3>
-                  <div className="flex mt-2">
-                    <button
-                      className={`px-4 py-2 rounded-l-md transition-all ${
-                        mode === 'light' ? 'bg-primary text-primary-foreground' : 'bg-secondary'
-                      }`}
-                      onClick={() => mode !== 'light' && handleModeToggle()}
-                    >
-                      Claro
-                    </button>
-                    <button
-                      className={`px-4 py-2 rounded-r-md transition-all ${
-                        mode === 'dark' ? 'bg-primary text-primary-foreground' : 'bg-secondary'
-                      }`}
-                      onClick={() => mode !== 'dark' && handleModeToggle()}
-                    >
-                      Escuro
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </TabsContent>
-            
-            <TabsContent value="typography" className="mt-6">
-              <div className="space-y-4">
-                <h3 className="text-lg font-medium">Fonte Principal</h3>
-                <div className="space-y-2">
-                  {fonts.map((font) => (
-                    <button
-                      key={font}
-                      className={`w-full py-3 px-4 rounded-md text-left transition-all ${
-                        selectedFont === font ? 'bg-primary text-primary-foreground' : 'bg-secondary'
-                      }`}
-                      onClick={() => handleFontChange(font)}
-                    >
-                      {font}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </TabsContent>
-            
-            <TabsContent value="ui" className="mt-6">
-              <div className="space-y-4">
-                <h3 className="text-lg font-medium">Arredondamento</h3>
-                <div className="flex flex-wrap gap-3">
-                  {radiusOptions.map((radius) => (
-                    <button
-                      key={radius}
-                      className={`px-4 py-2 transition-all ${
-                        borderRadius === radius ? 'bg-primary text-primary-foreground' : 'bg-secondary'
-                      }`}
-                      style={{ borderRadius: radius + 'px' }}
-                      onClick={() => handleBorderRadiusChange(radius)}
-                    >
-                      {radius}px
-                    </button>
-                  ))}
-                </div>
-                
-                <div className="pt-4">
-                  <h3 className="text-lg font-medium">Pré-visualização</h3>
-                  <div className="flex items-center mt-2">
-                    <Switch 
-                      checked={showPreview} 
-                      onCheckedChange={setShowPreview} 
-                    />
-                    <span className="ml-2">Mostrar pré-visualização</span>
-                  </div>
-                </div>
-              </div>
-            </TabsContent>
-          </Tabs>
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <div className="flex items-center gap-2">
+            <Brush className="h-5 w-5 text-academy-purple" />
+            <h2 className="text-xl font-semibold">Design da Sua Academia</h2>
+          </div>
           
-          <div className="flex justify-between items-center text-sm text-muted-foreground">
-            <span>
-              {saving ? (
-                <span className="flex items-center gap-2">
-                  <span className="animate-pulse">Salvando...</span>
-                </span>
-              ) : (
-                <span>Salvo: {lastSaved}</span>
-              )}
-            </span>
-            <Button
-              variant="default"
-              size="sm"
-              onClick={() => {
-                setPrimaryColor('#9b87f5');
-                setSelectedFont('SF Pro Display');
-                setBorderRadius(12);
-                setMode('dark');
-                simulateSaving();
-              }}
-            >
-              Restaurar Padrões
-            </Button>
+          <div className="flex items-center gap-3">
+            <div className="bg-secondary rounded-full flex items-center p-1">
+              <button 
+                className={cn(
+                  "p-1.5 rounded-full", 
+                  !isDarkMode ? "bg-white text-black" : "text-muted-foreground"
+                )}
+                onClick={() => setIsDarkMode(false)}
+              >
+                <Sun className="h-4 w-4" />
+              </button>
+              <button 
+                className={cn(
+                  "p-1.5 rounded-full", 
+                  isDarkMode ? "bg-gray-800 text-white" : "text-muted-foreground"
+                )}
+                onClick={() => setIsDarkMode(true)}
+              >
+                <Moon className="h-4 w-4" />
+              </button>
+            </div>
+            
+            <div className="relative">
+              <Button variant="outline" size="sm" className="flex items-center gap-2">
+                <span>Pesquisar elementos</span>
+                <ChevronDown className="h-3 w-3" />
+              </Button>
+            </div>
           </div>
         </div>
         
-        {/* Right Column - Preview */}
-        {showPreview && (
-          <div className="lg:col-span-2 space-y-6">
-            <h3 className="text-lg font-medium flex items-center gap-2">
-              <PanelRight className="h-5 w-5" />
-              Pré-visualização em tempo real
-            </h3>
-            
-            <div className="space-y-8 p-6 rounded-xl border">
-              <div className="space-y-4">
-                <h4 className="text-sm font-medium text-muted-foreground">Botões</h4>
-                <div className="flex flex-wrap gap-3">
-                  <Button
-                    style={{ 
-                      borderRadius: borderRadius + 'px',
-                      backgroundColor: primaryColor
-                    }}
-                  >
-                    Botão Primário
-                  </Button>
-                  <Button
-                    variant="outline"
-                    style={{ borderRadius: borderRadius + 'px' }}
-                  >
-                    Botão Secundário
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    style={{ borderRadius: borderRadius + 'px' }}
-                  >
-                    Botão Ghost
-                  </Button>
-                </div>
-              </div>
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <TabsList className="grid grid-cols-3 mb-4">
+            <TabsTrigger value="design" className="flex items-center gap-2">
+              <Palette className="h-4 w-4" />
+              Personalização
+            </TabsTrigger>
+            <TabsTrigger value="components" className="flex items-center gap-2">
+              <Layers className="h-4 w-4" />
+              Componentes
+            </TabsTrigger>
+            <TabsTrigger value="export" className="flex items-center gap-2">
+              <Download className="h-4 w-4" />
+              Exportar
+            </TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="design" className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm font-medium flex items-center gap-2">
+                    <Palette className="h-4 w-4" />
+                    Paleta de Cores
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm">Primária</span>
+                      <div className="flex items-center gap-2">
+                        <div className="h-6 w-6 rounded-full bg-academy-purple" />
+                        <span className="text-xs text-muted-foreground">#9b87f5</span>
+                      </div>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm">Secundária</span>
+                      <div className="flex items-center gap-2">
+                        <div className="h-6 w-6 rounded-full bg-academy-blue" />
+                        <span className="text-xs text-muted-foreground">#1EAEDB</span>
+                      </div>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm">Acento</span>
+                      <div className="flex items-center gap-2">
+                        <div className="h-6 w-6 rounded-full bg-academy-pink" />
+                        <span className="text-xs text-muted-foreground">#D946EF</span>
+                      </div>
+                    </div>
+                    <Button variant="outline" size="sm" className="w-full mt-2">Personalizar</Button>
+                  </div>
+                </CardContent>
+              </Card>
               
-              <div className="space-y-4">
-                <h4 className="text-sm font-medium text-muted-foreground">Cards</h4>
-                <div className="grid grid-cols-2 gap-4">
-                  <Card style={{ borderRadius: borderRadius + 'px' }}>
-                    <CardContent className="p-4">
-                      <h5 className="font-medium" style={{ fontFamily: selectedFont }}>
-                        Título do Card
-                      </h5>
-                      <p className="text-sm text-muted-foreground mt-2">
-                        Conteúdo do card de exemplo
-                      </p>
-                    </CardContent>
-                  </Card>
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm font-medium flex items-center gap-2">
+                    <Type className="h-4 w-4" />
+                    Tipografia
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm">Títulos</span>
+                      <span className="text-sm font-semibold">SF Pro Display</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm">Corpo</span>
+                      <span className="text-sm font-normal">SF Pro Text</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm">Dados</span>
+                      <span className="text-sm font-mono">SF Mono</span>
+                    </div>
+                    <Button variant="outline" size="sm" className="w-full mt-2">Personalizar</Button>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm font-medium flex items-center gap-2">
+                    <Layers className="h-4 w-4" />
+                    Elementos UI
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm">Botões</span>
+                      <div className="h-6 rounded-md bg-academy-purple px-2 flex items-center">
+                        <span className="text-xs text-white">Raio 12px</span>
+                      </div>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm">Cards</span>
+                      <div className="h-6 rounded-md border px-2 flex items-center">
+                        <span className="text-xs">Sombra 0.3pt</span>
+                      </div>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm">Ícones</span>
+                      <span className="text-xs text-muted-foreground">Preenchimento 85%</span>
+                    </div>
+                    <Button variant="outline" size="sm" className="w-full mt-2">Personalizar</Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+            
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base font-medium">Pré-Visualização em Tempo Real</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="border rounded-xl p-4 space-y-4">
+                  <div className="flex justify-between items-center">
+                    <h3 className="text-lg font-semibold">Dashboard</h3>
+                    <div className="flex gap-2">
+                      <Button size="sm" variant="secondary">Filtrar</Button>
+                      <Button size="sm">Novo Aluno</Button>
+                    </div>
+                  </div>
                   
-                  <Card 
-                    style={{ 
-                      borderRadius: borderRadius + 'px',
-                      borderColor: primaryColor
-                    }}
-                  >
-                    <CardContent className="p-4 flex items-center gap-4">
-                      <div
-                        className="h-10 w-10 rounded-full flex items-center justify-center text-white"
-                        style={{ backgroundColor: primaryColor }}
-                      >
-                        <Award className="h-5 w-5" />
-                      </div>
-                      <div>
-                        <h5 className="font-medium" style={{ fontFamily: selectedFont }}>
-                          Card de Destaque
-                        </h5>
-                        <p className="text-sm text-muted-foreground">Com ícone</p>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              </div>
-              
-              <div className="space-y-4">
-                <h4 className="text-sm font-medium text-muted-foreground">Tipografia</h4>
-                <div className="space-y-3">
-                  <h1 className="text-3xl font-bold" style={{ fontFamily: selectedFont }}>
-                    Título H1
-                  </h1>
-                  <h2 className="text-2xl font-semibold" style={{ fontFamily: selectedFont }}>
-                    Título H2
-                  </h2>
-                  <h3 className="text-xl font-medium" style={{ fontFamily: selectedFont }}>
-                    Título H3
-                  </h3>
-                  <p style={{ fontFamily: selectedFont }}>
-                    Texto de parágrafo normal em {selectedFont}
-                  </p>
-                </div>
-              </div>
-              
-              <div className="space-y-4">
-                <h4 className="text-sm font-medium text-muted-foreground">Cores</h4>
-                <div className="grid grid-cols-2 gap-4">
-                  <div 
-                    className="h-24 rounded-md flex items-center justify-center text-white"
-                    style={{ backgroundColor: primaryColor }}
-                  >
-                    Cor Primária
-                  </div>
-                  <div className="h-24 bg-secondary rounded-md flex items-center justify-center">
-                    Cor Secundária
+                  <div className="grid grid-cols-4 gap-4">
+                    <div className="bg-secondary rounded-lg p-4">
+                      <div className="text-sm text-muted-foreground">Alunos Ativos</div>
+                      <div className="text-2xl font-bold">142</div>
+                    </div>
+                    <div className="bg-secondary rounded-lg p-4">
+                      <div className="text-sm text-muted-foreground">Ocupação</div>
+                      <div className="text-2xl font-bold">78%</div>
+                    </div>
+                    <div className="bg-secondary rounded-lg p-4">
+                      <div className="text-sm text-muted-foreground">Receita</div>
+                      <div className="text-2xl font-bold">R$ 28.950</div>
+                    </div>
+                    <div className="bg-secondary rounded-lg p-4">
+                      <div className="text-sm text-muted-foreground">Evasão</div>
+                      <div className="text-2xl font-bold">12%</div>
+                    </div>
                   </div>
                 </div>
-              </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+          
+          <TabsContent value="components" className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base font-medium">Biblioteca de Componentes</CardTitle>
+                </CardHeader>
+                <CardContent className="p-2">
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="border rounded-md p-4 text-center hover:bg-secondary cursor-pointer">
+                      <div className="text-sm">Cards de Métricas</div>
+                    </div>
+                    <div className="border rounded-md p-4 text-center hover:bg-secondary cursor-pointer">
+                      <div className="text-sm">Gráficos</div>
+                    </div>
+                    <div className="border rounded-md p-4 text-center hover:bg-secondary cursor-pointer">
+                      <div className="text-sm">Sliders</div>
+                    </div>
+                    <div className="border rounded-md p-4 text-center hover:bg-secondary cursor-pointer">
+                      <div className="text-sm">Ícones</div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base font-medium">Ações Rápidas</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  <Button variant="outline" className="w-full justify-between">
+                    <span className="flex items-center gap-2">
+                      <Download className="h-4 w-4" />
+                      Baixar Template "Fitness Pro"
+                    </span>
+                    <MoveLeft className="h-4 w-4" />
+                  </Button>
+                  
+                  <Button variant="outline" className="w-full justify-between">
+                    <span className="flex items-center gap-2">
+                      <RefreshCw className="h-4 w-4" />
+                      Sincronizar com Adobe Color
+                    </span>
+                    <MoveLeft className="h-4 w-4" />
+                  </Button>
+                  
+                  <Button variant="outline" className="w-full justify-between">
+                    <span className="flex items-center gap-2">
+                      <Save className="h-4 w-4" />
+                      Exportar Tema (.fig)
+                    </span>
+                    <MoveLeft className="h-4 w-4" />
+                  </Button>
+                </CardContent>
+              </Card>
             </div>
             
-            <div className="p-4 bg-secondary rounded-md text-sm text-center">
-              Todas as alterações são aplicadas em tempo real e salvas automaticamente
-            </div>
-          </div>
-        )}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base font-medium">Barra de Ferramentas</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex flex-wrap gap-2 justify-center">
+                  <Button variant="outline" size="sm" className="flex items-center gap-2">
+                    <Settings className="h-4 w-4" />
+                    Ajustes Avançados
+                  </Button>
+                  <Button variant="outline" size="sm" className="flex items-center gap-2">
+                    <Monitor className="h-4 w-4" />
+                    Captura de Tela
+                  </Button>
+                  <Button variant="outline" size="sm" className="flex items-center gap-2">
+                    <Grid className="h-4 w-4" />
+                    Grades e Alinhamento
+                  </Button>
+                  <Button variant="outline" size="sm" className="flex items-center gap-2">
+                    <Layers className="h-4 w-4" />
+                    Tutoriais
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+          
+          <TabsContent value="export" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base font-medium">Exportar Design</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="border rounded-lg p-4 space-y-2">
+                    <h3 className="font-medium">Formato</h3>
+                    <div className="flex flex-wrap gap-2">
+                      <Button variant="outline" size="sm">JSON</Button>
+                      <Button variant="outline" size="sm">CSS</Button>
+                      <Button variant="outline" size="sm">Figma</Button>
+                    </div>
+                  </div>
+                  
+                  <div className="border rounded-lg p-4 space-y-2">
+                    <h3 className="font-medium">Escopo</h3>
+                    <div className="flex flex-wrap gap-2">
+                      <Button variant="outline" size="sm">Tema Completo</Button>
+                      <Button variant="outline" size="sm">Cores</Button>
+                      <Button variant="outline" size="sm">Tipografia</Button>
+                    </div>
+                  </div>
+                </div>
+                
+                <Button className="w-full">
+                  <Download className="h-4 w-4 mr-2" />
+                  Exportar Tema
+                </Button>
+                
+                <div className="text-xs text-muted-foreground text-center">
+                  v4.2.1 | Suporte a Dark Mode | Cores WCAG 2.1<br />
+                  🔒 Alterações salvas automaticamente a cada 5s
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
     </MainLayout>
-  );
-};
-
-// Custom Switch component
-const Switch = ({ checked, onCheckedChange }) => {
-  return (
-    <button
-      role="switch"
-      aria-checked={checked}
-      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background ${
-        checked ? 'bg-primary' : 'bg-input'
-      }`}
-      onClick={() => onCheckedChange(!checked)}
-    >
-      <span
-        className={`pointer-events-none block h-5 w-5 rounded-full bg-background shadow-lg ring-0 transition-transform ${
-          checked ? 'translate-x-5' : 'translate-x-1'
-        }`}
-      />
-    </button>
   );
 };
 
