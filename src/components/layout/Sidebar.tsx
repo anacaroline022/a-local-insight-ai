@@ -19,7 +19,8 @@ import {
   Utensils,
   PanelRight,
   Activity,
-  TrendingDown
+  TrendingDown,
+  DollarSign
 } from 'lucide-react';
 import { 
   Tooltip,
@@ -53,7 +54,7 @@ const mainItems: SidebarItem[] = [
   { title: 'Controle de Frequência', path: '/frequencia', icon: Activity },
   { title: 'Notificações Motivacionais', path: '/notificacoes', icon: Bell },
   { title: 'Relatórios', path: '/relatorios', icon: FileText },
-  { title: 'Programa de Fidelidade', path: '/fidelidade', icon: Award },
+  { title: 'Planilha e Faturamento', path: '/planilha-faturamento', icon: DollarSign },
 ];
 
 const bottomItems: SidebarItem[] = [

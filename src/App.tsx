@@ -12,6 +12,8 @@ import Dashboard from "./pages/Dashboard";
 import PrevisaoEvasao from "./pages/PrevisaoEvasao";
 import AulasTematicasRetro from "./pages/AulasTematicasRetro";
 import NotFound from "./pages/NotFound";
+import DesignIntuitivo from "./pages/DesignIntuitivo";
+import PlanilhaFaturamento from "./pages/PlanilhaFaturamento";
 
 // Create a client
 const queryClient = new QueryClient();
@@ -69,6 +71,22 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute>
             <AulasTematicasRetro />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/design-intuitivo" 
+        element={
+          <ProtectedRoute>
+            <DesignIntuitivo />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/planilha-faturamento" 
+        element={
+          <ProtectedRoute>
+            <PlanilhaFaturamento />
           </ProtectedRoute>
         } 
       />
