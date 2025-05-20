@@ -20,7 +20,8 @@ import {
   PanelRight,
   Activity,
   TrendingDown,
-  DollarSign
+  DollarSign,
+  FileSpreadsheet
 } from 'lucide-react';
 import { 
   Tooltip,
@@ -42,7 +43,7 @@ const mainItems: SidebarItem[] = [
   { title: 'Alertas Automáticos', path: '/alertas', icon: Bell },
   { title: 'Previsão de Evasão (IA)', path: '/previsao-evasao', icon: TrendingDown },
   { title: 'Gestão de Dados', path: '/gestao-dados', icon: BarChart2 },
-  { title: 'Plataforma de Pagamentos', path: '/pagamentos', icon: Award },
+  { title: 'Plataforma de Pagamentos', path: '/pagamentos', icon: FileSpreadsheet },
   { title: 'Análise Preditiva', path: '/analise-preditiva', icon: Activity },
   { title: 'Feedback de Alunos', path: '/feedback', icon: HeartPulse },
   { title: 'Chatbot', path: '/chatbot', icon: MessageCircle },

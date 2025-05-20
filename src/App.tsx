@@ -15,6 +15,7 @@ import NotFound from "./pages/NotFound";
 import DesignIntuitivo from "./pages/DesignIntuitivo";
 import PlanilhaFaturamento from "./pages/PlanilhaFaturamento";
 import Nutricao from "./pages/Nutricao";
+import Pagamentos from "./pages/Pagamentos";
 
 // Create a client
 const queryClient = new QueryClient();
@@ -88,6 +89,14 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute>
             <PlanilhaFaturamento />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/pagamentos" 
+        element={
+          <ProtectedRoute>
+            <Pagamentos />
           </ProtectedRoute>
         } 
       />
