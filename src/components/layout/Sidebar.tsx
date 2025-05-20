@@ -21,7 +21,8 @@ import {
   Activity,
   TrendingDown,
   DollarSign,
-  FileSpreadsheet
+  FileSpreadsheet,
+  ChartBar
 } from 'lucide-react';
 import { 
   Tooltip,
@@ -54,7 +55,7 @@ const mainItems: SidebarItem[] = [
   { title: 'Programas', path: '/programas', icon: Award },
   { title: 'Controle de Frequência', path: '/frequencia', icon: Activity },
   { title: 'Notificações Motivacionais', path: '/notificacoes', icon: Bell },
-  { title: 'Relatórios', path: '/relatorios', icon: FileText },
+  { title: 'Relatórios', path: '/relatorios', icon: ChartBar },
   { title: 'Planilha e Faturamento', path: '/planilha-faturamento', icon: DollarSign },
 ];
 

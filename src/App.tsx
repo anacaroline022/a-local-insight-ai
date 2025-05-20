@@ -16,6 +16,7 @@ import DesignIntuitivo from "./pages/DesignIntuitivo";
 import PlanilhaFaturamento from "./pages/PlanilhaFaturamento";
 import Nutricao from "./pages/Nutricao";
 import Pagamentos from "./pages/Pagamentos";
+import Relatorios from "./pages/Relatorios";
 
 // Create a client
 const queryClient = new QueryClient();
@@ -105,6 +106,14 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute>
             <Nutricao />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/relatorios" 
+        element={
+          <ProtectedRoute>
+            <Relatorios />
           </ProtectedRoute>
         } 
       />
