@@ -22,7 +22,9 @@ import {
   TrendingDown,
   DollarSign,
   FileSpreadsheet,
-  ChartBar
+  ChartBar,
+  Database,
+  Hexagon
 } from 'lucide-react';
 import { 
   Tooltip,
@@ -43,11 +45,12 @@ const mainItems: SidebarItem[] = [
   { title: 'Painel de Gestão', path: '/painel-gestao', icon: PanelRight },
   { title: 'Alertas Automáticos', path: '/alertas', icon: Bell },
   { title: 'Previsão de Evasão (IA)', path: '/previsao-evasao', icon: TrendingDown },
-  { title: 'Gestão de Dados', path: '/gestao-dados', icon: BarChart2 },
+  { title: 'Gestão de Dados', path: '/gestao-dados', icon: Database },
+  { title: 'Chatbot Inteligente', path: '/chatbot', icon: Hexagon },
   { title: 'Plataforma de Pagamentos', path: '/pagamentos', icon: FileSpreadsheet },
   { title: 'Análise Preditiva', path: '/analise-preditiva', icon: Activity },
   { title: 'Feedback de Alunos', path: '/feedback', icon: HeartPulse },
-  { title: 'Chatbot', path: '/chatbot', icon: MessageCircle },
+  { title: 'Comunicação', path: '/chatbot', icon: MessageCircle },
   { title: 'Treinos e Aulas Temáticas', path: '/aulas-tematicas', icon: Award },
   { title: 'Cronograma de Treinos', path: '/cronograma', icon: Calendar },
   { title: 'Aulas Salvas', path: '/aulas-salvas', icon: BookOpen },

@@ -19,6 +19,8 @@ import Pagamentos from "./pages/Pagamentos";
 import Relatorios from "./pages/Relatorios";
 import AlertasAutomaticos from "./pages/AlertasAutomaticos";
 import PainelGestao from "./pages/PainelGestao";
+import Chatbot from "./pages/Chatbot";
+import GestaoDatabase from "./pages/GestaoDatabase";
 
 // Create a client
 const queryClient = new QueryClient();
@@ -132,6 +134,22 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute>
             <PainelGestao />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/chatbot" 
+        element={
+          <ProtectedRoute>
+            <Chatbot />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/gestao-dados" 
+        element={
+          <ProtectedRoute>
+            <GestaoDatabase />
           </ProtectedRoute>
         } 
       />

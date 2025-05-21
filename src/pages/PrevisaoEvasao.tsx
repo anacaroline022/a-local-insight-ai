@@ -22,7 +22,9 @@ import {
   CircleCheck,
   CirclePlus,
   Search,
-  Export
+  Share,
+  FileDown,
+  Hexagon
 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -285,11 +287,14 @@ const PrevisaoEvasao = () => {
       headerImage="https://images.unsplash.com/photo-1576678927484-cc907957088c?q=80&w=2000&auto=format&fit=crop"
     >
       <div className="space-y-8 animate-fade-in">
-        {/* Top metrics section */}
+        {/* Top metrics section with Apple-like design */}
         <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="glassmorphism p-6 backdrop-blur-xl bg-black/40 border border-white/10 text-white rounded-xl">
             <div className="flex flex-col space-y-2">
-              <h3 className="text-sm font-medium text-gray-300">ALUNOS EM RISCO HOJE</h3>
+              <div className="flex items-center gap-2">
+                <Hexagon className="text-academy-purple animate-pulse" />
+                <h3 className="text-sm font-medium text-gray-300">ALUNOS EM RISCO HOJE</h3>
+              </div>
               <div className="text-3xl font-bold">18/120 (15%)</div>
               <div className="text-green-400 flex items-center text-sm">
                 ↓2% vs ontem
@@ -310,15 +315,23 @@ const PrevisaoEvasao = () => {
           <div className="glassmorphism p-6 backdrop-blur-xl bg-black/40 border border-white/10 text-white rounded-xl">
             <div className="flex flex-col space-y-2">
               <h3 className="text-sm font-medium text-gray-300">EFETIVIDADE DA IA</h3>
-              <div className="text-3xl font-bold">92%</div>
+              <div className="text-3xl font-bold">87%</div>
               <div className="text-blue-400 text-sm">
                 de precisão (baseado em dados históricos)
+              </div>
+              <div className="flex items-center mt-1">
+                <div className="flex-1 h-2 bg-gray-700 rounded-full">
+                  <div
+                    className="h-2 rounded-full bg-academy-purple"
+                    style={{width: "87%"}}
+                  ></div>
+                </div>
               </div>
             </div>
           </div>
         </section>
 
-        {/* Control bar */}
+        {/* Control bar - Apple inspired */}
         <div className="flex justify-between items-center">
           <div className="flex items-center space-x-2">
             <Button 
@@ -351,18 +364,18 @@ const PrevisaoEvasao = () => {
               <RefreshCcw className={`h-4 w-4 mr-2 ${isRefreshing ? "animate-spin" : ""}`} />
               Atualizar
             </Button>
-            <Button variant="outline" size="sm" className="transition-all">
+            <Button variant="outline" size="sm" className="transition-all" onClick={() => toast({ description: "Abrindo calendário..." })}>
               <Calendar className="h-4 w-4 mr-2" />
               Personalizar
             </Button>
-            <Button variant="outline" size="sm" className="transition-all">
+            <Button variant="outline" size="sm" className="transition-all" onClick={() => toast({ description: "Abrindo filtros..." })}>
               <Filter className="h-4 w-4 mr-2" />
               Filtros
             </Button>
           </div>
         </div>
 
-        {/* Main content - Charts in tabs */}
+        {/* Main content - Charts in tabs - Apple style */}
         <Tabs defaultValue="mainChart" className="w-full">
           <TabsList className="mb-4 flex justify-center">
             <TabsTrigger value="mainChart">Gráfico Principal</TabsTrigger>
@@ -562,7 +575,7 @@ const PrevisaoEvasao = () => {
           </TabsContent>
         </Tabs>
 
-        {/* Actionable Insights Panel */}
+        {/* Actionable Insights Panel - Apple Wallet style */}
         <div className="neo-blur p-6 bg-black/40 backdrop-blur-xl border border-white/10 rounded-xl text-white">
           <h3 className="text-lg font-medium mb-4">Insights Acionáveis</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -578,7 +591,12 @@ const PrevisaoEvasao = () => {
                 72% mais chances no inverno<br />
                 → Sugere campanha "Desafio de Inverno"
               </p>
-              <Button size="sm" variant="outline" className="mt-3 w-full border-white/20 hover:bg-white/10">
+              <Button 
+                size="sm" 
+                variant="outline" 
+                className="mt-3 w-full border-white/20 hover:bg-white/10"
+                onClick={() => toast({description: "Criando campanha de desafio de inverno..."})}
+              >
                 Criar Campanha
               </Button>
             </div>
@@ -595,7 +613,12 @@ const PrevisaoEvasao = () => {
                 Principal motivo: lotação<br />
                 → Oferecer pacote "Amigo Traz Amigo"
               </p>
-              <Button size="sm" variant="outline" className="mt-3 w-full border-white/20 hover:bg-white/10">
+              <Button 
+                size="sm" 
+                variant="outline" 
+                className="mt-3 w-full border-white/20 hover:bg-white/10"
+                onClick={() => toast({description: "Visualizando detalhes da turma das 19h..."})}
+              >
                 Ver Detalhes
               </Button>
             </div>
@@ -610,16 +633,21 @@ const PrevisaoEvasao = () => {
               <p className="text-sm text-gray-300">
                 <strong>Próximos 7 dias:</strong><br />
                 R$ 2.800 em risco<br />
-                (4 alunos com >80% chance de sair)
+                (4 alunos com &gt;80% chance de sair)
               </p>
-              <Button size="sm" variant="outline" className="mt-3 w-full border-white/20 hover:bg-white/10">
+              <Button 
+                size="sm" 
+                variant="outline" 
+                className="mt-3 w-full border-white/20 hover:bg-white/10"
+                onClick={() => toast({description: "Enviando mensagem aos 4 alunos em risco..."})}
+              >
                 Contatar Alunos
               </Button>
             </div>
           </div>
         </div>
 
-        {/* Students at risk section */}
+        {/* Students at risk section - Apple Health style */}
         <div>
           <h3 className="text-lg font-medium mb-4">Lista de Alunos Prioritários</h3>
           <div className="space-y-3">
@@ -727,19 +755,19 @@ const PrevisaoEvasao = () => {
                 <div className="space-y-3">
                   <label className="text-sm text-gray-300">Fatores considerados:</label>
                   <div className="flex items-center">
-                    <input type="checkbox" id="factor-freq" className="mr-2" checked />
+                    <input type="checkbox" id="factor-freq" className="mr-2" defaultChecked />
                     <label htmlFor="factor-freq" className="text-sm">Frequência</label>
                   </div>
                   <div className="flex items-center">
-                    <input type="checkbox" id="factor-pay" className="mr-2" checked />
+                    <input type="checkbox" id="factor-pay" className="mr-2" defaultChecked />
                     <label htmlFor="factor-pay" className="text-sm">Pagamentos</label>
                   </div>
                   <div className="flex items-center">
-                    <input type="checkbox" id="factor-feed" className="mr-2" checked />
+                    <input type="checkbox" id="factor-feed" className="mr-2" defaultChecked />
                     <label htmlFor="factor-feed" className="text-sm">Feedback</label>
                   </div>
                   <div className="flex items-center">
-                    <input type="checkbox" id="factor-class" className="mr-2" checked />
+                    <input type="checkbox" id="factor-class" className="mr-2" defaultChecked />
                     <label htmlFor="factor-class" className="text-sm">Frequência das aulas</label>
                   </div>
                 </div>
@@ -789,7 +817,7 @@ const PrevisaoEvasao = () => {
           </div>
         )}
 
-        {/* Bottom control panel */}
+        {/* Bottom control panel - iPadOS style*/}
         <div className="fixed bottom-6 right-6 flex flex-col space-y-3 items-end">
           <div className={`flex space-x-3 transition-all duration-300 ${showExportOptions || showAISettings ? 'opacity-0' : 'opacity-100'}`}>
             <Button 
@@ -806,7 +834,7 @@ const PrevisaoEvasao = () => {
               onClick={() => setShowExportOptions(true)}
             >
               <span className="sr-only">Exportar Relatório</span>
-              <Export className="h-5 w-5" />
+              <FileDown className="h-5 w-5" />
             </Button>
             <Button 
               variant="outline"
@@ -836,27 +864,6 @@ const PrevisaoEvasao = () => {
       </div>
     </MainLayout>
   );
-};
-
-// Custom tooltip component for the chart
-const CustomTooltip = ({ active, payload, label }: any) => {
-  if (active && payload && payload.length) {
-    return (
-      <div className="bg-background border border-border p-3 rounded-lg shadow-lg">
-        <p className="font-medium">{label}</p>
-        {payload[0].value !== null && (
-          <p className="text-[#007AFF]">
-            Cancelamentos: {payload[0].value}
-          </p>
-        )}
-        <p className="text-[#FF9500]">
-          Previsão: {payload[1].value}
-        </p>
-      </div>
-    );
-  }
-
-  return null;
 };
 
 export default PrevisaoEvasao;
