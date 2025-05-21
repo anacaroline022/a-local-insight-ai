@@ -26,6 +26,7 @@ import {
   FileText,
   Settings,
 } from 'lucide-react';
+import PieChart from '@/components/charts/PieChart';
 
 // Sample data for attendance chart
 const frequencyData = [
@@ -71,9 +72,88 @@ const evasionTrendData = [
   { month: 'Jul', cancelamentos: null, previsao: 6 },
 ];
 
+// Sample data for gender distribution
+const genderData = [
+  { name: 'Mulheres', value: 65, color: '#9b87f5' },
+  { name: 'Homens', value: 35, color: '#6E59A5' },
+];
+
+// Sample data for age distribution
+const womenAgeData = [
+  { name: '18-25', value: 30, color: '#9b87f5' },
+  { name: '26-35', value: 40, color: '#8B5CF6' },
+  { name: '36-45', value: 20, color: '#7E69AB' },
+  { name: '46+', value: 10, color: '#D6BCFA' },
+];
+
+// Sample data for line charts
+const lineChartsData = [
+  {
+    title: "Frequência vs Resultados",
+    data: [
+      { name: 'Jan', frequencia: 75, resultados: 65 },
+      { name: 'Fev', frequencia: 78, resultados: 72 },
+      { name: 'Mar', frequencia: 82, resultados: 80 },
+      { name: 'Abr', frequencia: 85, resultados: 85 },
+      { name: 'Mai', frequencia: 80, resultados: 82 },
+      { name: 'Jun', frequencia: 88, resultados: 90 },
+    ],
+    lines: [
+      { dataKey: 'frequencia', color: '#f97316' },
+      { dataKey: 'resultados', color: '#22c55e' }
+    ]
+  },
+  {
+    title: "Indicadores de Satisfação",
+    data: [
+      { name: 'Jan', satisfacao: 80, recomendacao: 70 },
+      { name: 'Fev', satisfacao: 82, recomendacao: 75 },
+      { name: 'Mar', satisfacao: 85, recomendacao: 80 },
+      { name: 'Abr', satisfacao: 90, recomendacao: 85 },
+      { name: 'Mai', satisfacao: 88, recomendacao: 88 },
+      { name: 'Jun', satisfacao: 92, recomendacao: 90 },
+    ],
+    lines: [
+      { dataKey: 'satisfacao', color: '#9b87f5' },
+      { dataKey: 'recomendacao', color: '#1EAEDB' }
+    ]
+  },
+  {
+    title: "Inscrições vs Evasão",
+    data: [
+      { name: 'Jan', inscricoes: 12, evasao: 5 },
+      { name: 'Fev', inscricoes: 15, evasao: 7 },
+      { name: 'Mar', inscricoes: 18, evasao: 8 },
+      { name: 'Abr', inscricoes: 14, evasao: 6 },
+      { name: 'Mai', inscricoes: 20, evasao: 9 },
+      { name: 'Jun', inscricoes: 22, evasao: 6 },
+    ],
+    lines: [
+      { dataKey: 'inscricoes', color: '#22c55e' },
+      { dataKey: 'evasao', color: '#ef4444' }
+    ]
+  },
+  {
+    title: "Receita vs Despesas",
+    data: [
+      { name: 'Jan', receita: 25000, despesas: 18000 },
+      { name: 'Fev', receita: 27500, despesas: 19000 },
+      { name: 'Mar', receita: 28000, despesas: 19500 },
+      { name: 'Abr', receita: 29000, despesas: 20000 },
+      { name: 'Mai', receita: 30500, despesas: 21000 },
+      { name: 'Jun', receita: 32000, despesas: 21500 },
+    ],
+    lines: [
+      { dataKey: 'receita', color: '#3b82f6' },
+      { dataKey: 'despesas', color: '#f97316' }
+    ]
+  }
+];
+
 const Dashboard = () => {
   const { toast } = useToast();
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [currentChartIndex, setCurrentChartIndex] = useState(0);
 
   const handleRefresh = () => {
     setIsRefreshing(true);
@@ -109,6 +189,14 @@ const Dashboard = () => {
           description: `Ação ${action} para ${target}`
         });
     }
+  };
+
+  const nextChart = () => {
+    setCurrentChartIndex((prev) => (prev + 1) % lineChartsData.length);
+  };
+
+  const prevChart = () => {
+    setCurrentChartIndex((prev) => (prev - 1 + lineChartsData.length) % lineChartsData.length);
   };
 
   return (
@@ -149,6 +237,60 @@ const Dashboard = () => {
             <div className="text-amber-500 text-sm">-2% vs média</div>
           </Card>
         </div>
+
+        {/* Pie charts - Gender and Age Distribution */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <PieChart 
+            title="Distribuição por Gênero" 
+            data={genderData}
+            height={300}
+            colors={['#9b87f5', '#6E59A5']} 
+          />
+          
+          <PieChart 
+            title="Distribuição de Idade (Mulheres)" 
+            data={womenAgeData}
+            height={300}
+            colors={['#9b87f5', '#8B5CF6', '#7E69AB', '#D6BCFA']} 
+          />
+        </div>
+
+        {/* Sliding Line Charts */}
+        <Card className="p-5">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-medium">{lineChartsData[currentChartIndex].title}</h3>
+            <div className="flex space-x-2">
+              <Button variant="outline" size="sm" onClick={prevChart}>
+                Anterior
+              </Button>
+              <Button variant="outline" size="sm" onClick={nextChart}>
+                Próximo
+              </Button>
+            </div>
+          </div>
+          <div className="h-72">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={lineChartsData[currentChartIndex].data}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                <XAxis dataKey="name" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                {lineChartsData[currentChartIndex].lines.map((line, index) => (
+                  <Line
+                    key={index}
+                    type="monotone"
+                    dataKey={line.dataKey}
+                    name={line.dataKey.charAt(0).toUpperCase() + line.dataKey.slice(1)}
+                    stroke={line.color}
+                    strokeWidth={2}
+                    activeDot={{ r: 8 }}
+                  />
+                ))}
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </Card>
 
         {/* Frequency heat map */}
         <Card className="p-5">
