@@ -1,394 +1,285 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import MainLayout from '@/components/layout/MainLayout';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import LineChart from '@/components/charts/LineChart';
-import BarChart from '@/components/charts/BarChart';
-import PieChart from '@/components/charts/PieChart';
-import { User, Users, TrendingDown, TrendingUp, DollarSign, Calendar } from 'lucide-react';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
+import { useToast } from '@/hooks/use-toast';
+import {
+  ResponsiveContainer,
+  LineChart,
+  Line,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+} from 'recharts';
+import {
+  Users,
+  Bell,
+  Calendar,
+  RefreshCcw,
+  TrendingDown,
+  MessageSquare,
+  FileText,
+  Settings,
+} from 'lucide-react';
 
-// Mock data for the dashboard
-const generateRetencionData = () => {
-  const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
-  
-  return months.map(month => {
-    const thisYear = Math.round(70 + Math.random() * 15);
-    const lastYear = Math.round(60 + Math.random() * 15);
-    const prediction = month === 'Jun' || month === 'Jul' ? 
-      Math.round(thisYear - Math.random() * 15) : 
-      Math.round(thisYear + Math.random() * 5);
-    
-    return {
-      name: month,
-      "Atual": thisYear,
-      "Ano Anterior": lastYear,
-      "Previsão IA": prediction
-    };
-  });
-};
-
-const generateRevenue = () => {
-  const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
-  
-  return months.map(month => {
-    const revenue = Math.round(20000 + Math.random() * 10000);
-    const projected = month === 'Jun' || month === 'Jul' ? 
-      Math.round(revenue - Math.random() * 8000) : 
-      Math.round(revenue + Math.random() * 2000);
-    
-    return {
-      name: month,
-      "Receita": revenue,
-      "Projeção": projected
-    };
-  });
-};
-
-const generateAgeDistribution = () => [
-  { name: '18-24', value: 20 },
-  { name: '25-34', value: 35, color: '#9b87f5' },
-  { name: '35-44', value: 30, color: '#9b87f5' },
-  { name: '45-54', value: 10 },
-  { name: '55+', value: 5 }
+// Sample data for attendance chart
+const frequencyData = [
+  { name: 'Segunda', frequencia: 78 },
+  { name: 'Terça', frequencia: 82 },
+  { name: 'Quarta', frequencia: 90 },
+  { name: 'Quinta', frequencia: 85 },
+  { name: 'Sexta', frequencia: 80 },
+  { name: 'Sábado', frequencia: 70 },
+  { name: 'Domingo', frequencia: 40 },
 ];
 
-const generateAttendanceData = () => {
-  const days = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
-  
-  return days.map(day => {
-    return {
-      name: day,
-      "Manhã": Math.round(20 + Math.random() * 30),
-      "Tarde": Math.round(15 + Math.random() * 25),
-      "Noite": day === 'Sáb' || day === 'Dom' ? 
-        Math.round(5 + Math.random() * 15) : 
-        Math.round(30 + Math.random() * 40),
-    };
-  });
-};
+// Sample data for students at risk
+const alunosRiscoData = [
+  { 
+    id: 1, 
+    nome: 'Ana Silva', 
+    foto: 'https://images.unsplash.com/photo-1554151228-14d9def656e4?q=80&w=200&auto=format&fit=crop',
+    risco: 'Faltou 3x na semana',
+  },
+  { 
+    id: 2, 
+    nome: 'Carlos Oliveira', 
+    foto: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=200&auto=format&fit=crop',
+    risco: 'Feedback negativo',
+  },
+  { 
+    id: 3, 
+    nome: 'Mariana Santos', 
+    foto: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=200&auto=format&fit=crop',
+    risco: 'Pagamento atrasado',
+  }
+];
+
+// Sample data for evasion trend
+const evasionTrendData = [
+  { month: 'Jan', cancelamentos: 5, previsao: 6 },
+  { month: 'Fev', cancelamentos: 7, previsao: 6 },
+  { month: 'Mar', cancelamentos: 8, previsao: 7 },
+  { month: 'Abr', cancelamentos: 6, previsao: 7 },
+  { month: 'Mai', cancelamentos: 9, previsao: 8 },
+  { month: 'Jun', cancelamentos: null, previsao: 7 },
+  { month: 'Jul', cancelamentos: null, previsao: 6 },
+];
 
 const Dashboard = () => {
-  const [retentionData, setRetentionData] = useState(generateRetencionData());
-  const [revenueData, setRevenueData] = useState(generateRevenue());
-  const [ageData, setAgeData] = useState(generateAgeDistribution());
-  const [attendanceData, setAttendanceData] = useState(generateAttendanceData());
-  const [currentDate, setCurrentDate] = useState('');
-  
-  // Update real-time data every 5 seconds to simulate live updates
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setRetentionData(generateRetencionData());
-      setRevenueData(generateRevenue());
-      setAttendanceData(generateAttendanceData());
-      
-      // Update current date/time for real-time effect
-      const now = new Date();
-      setCurrentDate(now.toLocaleString('pt-BR'));
-    }, 5000);
+  const { toast } = useToast();
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const handleRefresh = () => {
+    setIsRefreshing(true);
+    toast({
+      description: "Atualizando dashboard..."
+    });
     
-    // Set initial current date/time
-    const now = new Date();
-    setCurrentDate(now.toLocaleString('pt-BR'));
-    
-    return () => clearInterval(interval);
-  }, []);
-  
-  const StatCard = ({ title, value, icon: Icon, trend, description, color }) => (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium">{title}</CardTitle>
-        <div className={cn("p-2 rounded-full", color)}>
-          <Icon className="h-4 w-4 text-white" />
-        </div>
-      </CardHeader>
-      <CardContent>
-        <div className="text-2xl font-bold">{value}</div>
-        <p className="text-xs text-muted-foreground flex items-center mt-1">
-          {trend === 'up' ? (
-            <TrendingUp className="h-3 w-3 mr-1 text-academy-green" />
-          ) : (
-            <TrendingDown className="h-3 w-3 mr-1 text-academy-red" />
-          )}
-          {description}
-        </p>
-      </CardContent>
-    </Card>
-  );
-  
+    setTimeout(() => {
+      setIsRefreshing(false);
+      toast({
+        title: "Dashboard atualizado",
+        description: "Dados atualizados com sucesso"
+      });
+    }, 1500);
+  };
+
+  const handleAction = (action: string, target: string) => {
+    switch (action) {
+      case 'notificar':
+        toast({
+          title: "Notificação enviada",
+          description: `Uma mensagem foi enviada para ${target}`
+        });
+        break;
+      case 'desconto':
+        toast({
+          title: "Desconto oferecido",
+          description: `Um desconto foi oferecido para ${target}`
+        });
+        break;
+      default:
+        toast({
+          description: `Ação ${action} para ${target}`
+        });
+    }
+  };
+
   return (
     <MainLayout 
       pageTitle="Dashboard" 
-      pageSubtitle="Visão geral da Academia Força Local"
-      headerImage="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80"
+      pageSubtitle="Visão geral da sua academia"
+      headerImage="https://images.unsplash.com/photo-1571902943202-507ec2618e8f?q=80&w=2000&auto=format&fit=crop"
     >
       <div className="space-y-6">
-        <div className="flex justify-between items-center">
-          <h2 className="text-2xl font-bold">Visão Geral</h2>
-          <div className="text-sm text-muted-foreground flex items-center">
-            <Calendar className="h-4 w-4 mr-2" />
-            Dados atualizados em tempo real: {currentDate}
-          </div>
+        {/* Overview metrics */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <Card className="p-5">
+            <h3 className="text-sm text-muted-foreground">Alunos Ativos</h3>
+            <div className="text-3xl font-bold mt-2">87/120</div>
+            <div className="text-green-500 text-sm">+5% vs semana passada</div>
+          </Card>
+
+          <Card className="p-5">
+            <h3 className="text-sm text-muted-foreground">Risco de Evasão</h3>
+            <div className="text-3xl font-bold mt-2">12%</div>
+            <div className="flex mt-2">
+              <div className="h-2 bg-amber-500 rounded-full" style={{ width: '12%' }}></div>
+              <div className="h-2 bg-muted rounded-full" style={{ width: '88%' }}></div>
+            </div>
+          </Card>
+
+          <Card className="p-5">
+            <h3 className="text-sm text-muted-foreground">Pagamentos Pendentes</h3>
+            <div className="text-3xl font-bold mt-2">R$ 2.450</div>
+            <Button variant="link" className="p-0 h-auto mt-2" onClick={() => handleAction('cobrar', 'pagamentos')}>
+              Cobrar
+            </Button>
+          </Card>
+
+          <Card className="p-5">
+            <h3 className="text-sm text-muted-foreground">Frequência Hoje</h3>
+            <div className="text-3xl font-bold mt-2">73%</div>
+            <div className="text-amber-500 text-sm">-2% vs média</div>
+          </Card>
         </div>
-        
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <StatCard 
-            title="Total de Alunos" 
-            value="286" 
-            icon={Users} 
-            trend="up" 
-            description="12% em relação ao mês anterior"
-            color="bg-academy-blue"
-          />
-          <StatCard 
-            title="Novas Matrículas" 
-            value="24" 
-            icon={User} 
-            trend="up" 
-            description="8% em relação ao mês anterior"
-            color="bg-academy-green"
-          />
-          <StatCard 
-            title="Cancelamentos" 
-            value="6" 
-            icon={TrendingDown} 
-            trend="down" 
-            description="3% em relação ao mês anterior"
-            color="bg-academy-red"
-          />
-          <StatCard 
-            title="Receita Mensal" 
-            value="R$ 42.860" 
-            icon={DollarSign} 
-            trend="up" 
-            description="9% em relação ao mês anterior"
-            color="bg-academy-purple"
-          />
-        </div>
-        
-        <Tabs defaultValue="retenção" className="w-full">
-          <TabsList className="grid grid-cols-4 w-full max-w-lg">
-            <TabsTrigger value="retenção">Retenção</TabsTrigger>
-            <TabsTrigger value="receita">Receita</TabsTrigger>
-            <TabsTrigger value="demografia">Demografia</TabsTrigger>
-            <TabsTrigger value="frequência">Frequência</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="retenção" className="space-y-4 mt-4">
-            <div className="flex flex-col">
-              <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-1">
-                <LineChart 
-                  title="Taxa de Retenção de Alunos (%)" 
-                  description="Comparativo anual com previsão de IA para os próximos meses"
-                  tooltip="Os meses de inverno (Junho e Julho) têm previsão de queda na retenção. A IA sugere implementar campanhas especiais neste período."
-                  data={retentionData}
-                  lines={[
-                    { dataKey: "Atual", color: "#9b87f5", name: "Taxa Atual (%)" },
-                    { dataKey: "Ano Anterior", color: "#1EAEDB", name: "Ano Anterior (%)" },
-                    { dataKey: "Previsão IA", color: "#D946EF", name: "Previsão IA (%)" }
-                  ]}
-                  height={400}
+
+        {/* Frequency heat map */}
+        <Card className="p-5">
+          <h3 className="text-lg font-medium mb-4">Mapa de Calor da Frequência</h3>
+          <div className="h-72">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={frequencyData}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                <XAxis dataKey="name" />
+                <YAxis domain={[0, 100]} />
+                <Tooltip formatter={(value) => `${value}%`} />
+                <Bar 
+                  dataKey="frequencia" 
+                  name="Frequência" 
+                  fill="#9b87f5"
+                  radius={[4, 4, 0, 0]} 
                 />
-              </div>
-              
-              <div className="mt-4">
-                <h3 className="text-lg font-medium mb-2">Alerta de IA:</h3>
-                <div className="bg-academy-red/10 border border-academy-red/20 rounded-lg p-4">
-                  <div className="flex items-start">
-                    <TrendingDown className="h-5 w-5 text-academy-red mr-2 mt-0.5" />
-                    <div>
-                      <h4 className="font-medium text-academy-red">Previsão de Queda na Retenção</h4>
-                      <p className="text-sm mt-1">
-                        O modelo de IA prevê uma queda de 15% na retenção para os meses de junho e julho devido ao inverno.
-                        Sugerimos implementar as seguintes ações:
-                      </p>
-                      <ul className="text-sm mt-2 space-y-1 list-disc list-inside">
-                        <li>Iniciar campanhas motivacionais específicas para o inverno</li>
-                        <li>Oferecer desconto especial para pagamento trimestral antecipado</li>
-                        <li>Promover aulas temáticas e desafios internos para aumentar o engajamento</li>
-                      </ul>
-                      <Button className="mt-3 bg-academy-red text-white hover:bg-academy-red/90">
-                        Implementar Recomendações
-                      </Button>
-                    </div>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="text-sm text-muted-foreground mt-4">
+            Toque em um dia para ver detalhes dos alunos ausentes
+          </div>
+        </Card>
+
+        {/* Two columns layout for Students at Risk and Evasion Trend */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Students at risk */}
+          <Card className="p-5">
+            <h3 className="text-lg font-medium mb-4">Lista de Alunos em Risco</h3>
+            <div className="space-y-4">
+              {alunosRiscoData.map((aluno) => (
+                <div key={aluno.id} className="flex items-center p-3 rounded-lg bg-muted/30">
+                  <img 
+                    src={aluno.foto}
+                    alt={aluno.nome}
+                    className="w-12 h-12 rounded-full object-cover"
+                  />
+                  <div className="ml-4 flex-1">
+                    <div className="font-medium">{aluno.nome}</div>
+                    <div className="text-sm text-muted-foreground">{aluno.risco}</div>
                   </div>
-                </div>
-              </div>
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="receita" className="mt-4">
-            <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-1">
-              <LineChart 
-                title="Receita Mensal (R$)" 
-                description="Valores atuais e projeção baseada em IA"
-                tooltip="A projeção considera a taxa de retenção prevista e o histórico de conversão de novos alunos."
-                data={revenueData}
-                lines={[
-                  { dataKey: "Receita", color: "#4CAF50", name: "Receita (R$)" },
-                  { dataKey: "Projeção", color: "#FF9800", name: "Projeção (R$)" }
-                ]}
-                height={400}
-              />
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="demografia" className="mt-4">
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-2">
-              <PieChart 
-                title="Distribuição por Idade" 
-                description="Segmentação de alunos por faixa etária"
-                tooltip="As faixas destacadas representam o público majoritário da academia (mulheres 25-45 anos)."
-                data={ageData}
-                height={320}
-              />
-              
-              <PieChart 
-                title="Distribuição por Gênero" 
-                data={[
-                  { name: "Feminino", value: 65, color: "#D946EF" },
-                  { name: "Masculino", value: 35, color: "#1EAEDB" }
-                ]}
-                description="Segmentação de alunos por gênero"
-                tooltip="O público feminino representa a maioria dos alunos, alinhado com o foco da academia."
-                height={320}
-              />
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="frequência" className="mt-4">
-            <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-1">
-              <BarChart 
-                title="Frequência Semanal por Período" 
-                description="Número médio de alunos por dia da semana e período"
-                tooltip="A noite é o horário mais movimentado em dias úteis, enquanto finais de semana têm menor frequência."
-                data={attendanceData}
-                bars={[
-                  { dataKey: "Manhã", color: "#9b87f5" },
-                  { dataKey: "Tarde", color: "#1EAEDB" },
-                  { dataKey: "Noite", color: "#D946EF" }
-                ]}
-                height={400}
-              />
-            </div>
-          </TabsContent>
-        </Tabs>
-        
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          <Card className="col-span-1">
-            <CardHeader>
-              <CardTitle className="text-base font-medium">Alunos em Risco de Evasão</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {[
-                { name: "Ana Silva", days: 12, risk: 85 },
-                { name: "Carlos Mendes", days: 8, risk: 76 },
-                { name: "Lucia Farias", days: 10, risk: 72 },
-                { name: "Roberto Santos", days: 7, risk: 65 },
-                { name: "Juliana Lima", days: 9, risk: 62 }
-              ].map((student, index) => (
-                <div key={index} className="flex items-center justify-between pb-2 border-b border-border last:border-0 last:pb-0">
-                  <div>
-                    <h4 className="font-medium">{student.name}</h4>
-                    <p className="text-xs text-muted-foreground">{student.days} dias sem frequência</p>
-                  </div>
-                  <div className="flex items-center">
-                    <span className={cn(
-                      "text-sm font-medium px-2 py-1 rounded",
-                      student.risk > 75 ? "bg-academy-red/10 text-academy-red" : "bg-academy-orange/10 text-academy-orange"
-                    )}>
-                      {student.risk}% risco
-                    </span>
-                    <Button variant="ghost" size="sm" className="ml-2">
-                      Contatar
+                  <div className="flex space-x-2">
+                    <Button 
+                      size="sm" 
+                      variant="outline"
+                      onClick={() => handleAction('notificar', aluno.nome)}
+                    >
+                      Notificar
+                    </Button>
+                    <Button 
+                      size="sm"
+                      onClick={() => handleAction('desconto', aluno.nome)}
+                    >
+                      Oferecer Desconto
                     </Button>
                   </div>
                 </div>
               ))}
-            </CardContent>
+              <Button variant="link" className="w-full" onClick={() => handleAction('ver', 'todos os alunos em risco')}>
+                Ver todos →
+              </Button>
+            </div>
           </Card>
-          
-          <Card className="col-span-1">
-            <CardHeader>
-              <CardTitle className="text-base font-medium">Análise de Frequência</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <p className="text-sm">Frequência Média Semanal</p>
-                  <p className="font-medium">3.2 dias/semana</p>
-                </div>
-                <div className="h-2 bg-secondary rounded-full overflow-hidden">
-                  <div className="h-full bg-academy-blue" style={{ width: '64%' }}></div>
-                </div>
-              </div>
-              
-              <div className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <p className="text-sm">Consistência de Horários</p>
-                  <p className="font-medium">76%</p>
-                </div>
-                <div className="h-2 bg-secondary rounded-full overflow-hidden">
-                  <div className="h-full bg-academy-purple" style={{ width: '76%' }}></div>
-                </div>
-              </div>
-              
-              <div className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <p className="text-sm">Permanência na Academia</p>
-                  <p className="font-medium">52 min</p>
-                </div>
-                <div className="h-2 bg-secondary rounded-full overflow-hidden">
-                  <div className="h-full bg-academy-green" style={{ width: '58%' }}></div>
-                </div>
-              </div>
-              
-              <div className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <p className="text-sm">Taxa de Adesão a Aulas</p>
-                  <p className="font-medium">41%</p>
-                </div>
-                <div className="h-2 bg-secondary rounded-full overflow-hidden">
-                  <div className="h-full bg-academy-pink" style={{ width: '41%' }}></div>
-                </div>
-              </div>
-            </CardContent>
+
+          {/* Evasion trend */}
+          <Card className="p-5">
+            <h3 className="text-lg font-medium mb-4">Gráfico de Tendência de Evasão</h3>
+            <div className="h-72">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={evasionTrendData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="month" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Line
+                    type="monotone"
+                    dataKey="cancelamentos"
+                    name="Cancelamentos reais"
+                    stroke="#0369a1"
+                    strokeWidth={2}
+                    activeDot={{ r: 8 }}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="previsao"
+                    name="Previsão IA"
+                    stroke="#f97316"
+                    strokeWidth={2}
+                    strokeDasharray="5 5"
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
           </Card>
-          
-          <Card className="col-span-1">
-            <CardHeader>
-              <CardTitle className="text-base font-medium">Próximas Ações</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="bg-academy-blue/10 p-3 rounded-lg flex">
-                <Calendar className="h-5 w-5 text-academy-blue mr-3 flex-shrink-0" />
-                <div>
-                  <h4 className="font-medium text-academy-blue">Campanha de Inverno</h4>
-                  <p className="text-xs">Iniciar em 3 dias • Prioridade Alta</p>
-                </div>
-              </div>
-              
-              <div className="bg-academy-purple/10 p-3 rounded-lg flex">
-                <Users className="h-5 w-5 text-academy-purple mr-3 flex-shrink-0" />
-                <div>
-                  <h4 className="font-medium text-academy-purple">Contatar Alunos em Risco</h4>
-                  <p className="text-xs">5 alunos • Prioridade Alta</p>
-                </div>
-              </div>
-              
-              <div className="bg-academy-green/10 p-3 rounded-lg flex">
-                <TrendingUp className="h-5 w-5 text-academy-green mr-3 flex-shrink-0" />
-                <div>
-                  <h4 className="font-medium text-academy-green">Atualizar Planos</h4>
-                  <p className="text-xs">Em 7 dias • Prioridade Média</p>
-                </div>
-              </div>
-              
-              <Button className="w-full">Ver todas as ações</Button>
-            </CardContent>
-          </Card>
+        </div>
+
+        {/* Bottom action bar */}
+        <div className="fixed bottom-6 right-6 flex space-x-3">
+          <Button 
+            className="h-12 w-12 rounded-full shadow-lg"
+            onClick={handleRefresh}
+          >
+            <RefreshCcw className={`h-5 w-5 ${isRefreshing ? "animate-spin" : ""}`} />
+            <span className="sr-only">Atualizar</span>
+          </Button>
+          <Button 
+            variant="secondary"
+            className="h-12 w-12 rounded-full shadow-lg"
+            onClick={() => handleAction('ver', 'alertas')}
+          >
+            <Bell className="h-5 w-5" />
+            <span className="sr-only">Alertas</span>
+          </Button>
+          <Button 
+            variant="secondary"
+            className="h-12 w-12 rounded-full shadow-lg"
+            onClick={() => handleAction('ver', 'alunos')}
+          >
+            <Users className="h-5 w-5" />
+            <span className="sr-only">Alunos</span>
+          </Button>
+          <Button 
+            variant="secondary"
+            className="h-12 w-12 rounded-full shadow-lg"
+            onClick={() => handleAction('ver', 'configurações')}
+          >
+            <Settings className="h-5 w-5" />
+            <span className="sr-only">Configurações</span>
+          </Button>
         </div>
       </div>
     </MainLayout>

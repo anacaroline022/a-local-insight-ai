@@ -17,6 +17,8 @@ import PlanilhaFaturamento from "./pages/PlanilhaFaturamento";
 import Nutricao from "./pages/Nutricao";
 import Pagamentos from "./pages/Pagamentos";
 import Relatorios from "./pages/Relatorios";
+import AlertasAutomaticos from "./pages/AlertasAutomaticos";
+import PainelGestao from "./pages/PainelGestao";
 
 // Create a client
 const queryClient = new QueryClient();
@@ -114,6 +116,22 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute>
             <Relatorios />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/alertas" 
+        element={
+          <ProtectedRoute>
+            <AlertasAutomaticos />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/painel-gestao" 
+        element={
+          <ProtectedRoute>
+            <PainelGestao />
           </ProtectedRoute>
         } 
       />
