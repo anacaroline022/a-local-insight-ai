@@ -24,7 +24,8 @@ import {
   FileSpreadsheet,
   ChartBar,
   Database,
-  Hexagon
+  Hexagon,
+  Clock
 } from 'lucide-react';
 import { 
   Tooltip,
@@ -45,10 +46,12 @@ const mainItems: SidebarItem[] = [
   { title: 'Painel de Gestão', path: '/painel-gestao', icon: PanelRight },
   { title: 'Alertas Automáticos', path: '/alertas', icon: Bell },
   { title: 'Previsão de Evasão (IA)', path: '/previsao-evasao', icon: TrendingDown },
+  { title: 'Análise Preditiva', path: '/analise-preditiva', icon: Activity },
+  { title: 'Controle de Frequência', path: '/controle-frequencia', icon: Clock },
+  { title: 'Notificações', path: '/notificacoes', icon: Bell },
   { title: 'Gestão de Dados', path: '/gestao-dados', icon: Database },
   { title: 'Chatbot Inteligente', path: '/chatbot', icon: Hexagon },
   { title: 'Plataforma de Pagamentos', path: '/pagamentos', icon: FileSpreadsheet },
-  { title: 'Análise Preditiva', path: '/analise-preditiva', icon: Activity },
   { title: 'Feedback de Alunos', path: '/feedback', icon: HeartPulse },
   { title: 'Comunicação', path: '/chatbot', icon: MessageCircle },
   { title: 'Treinos e Aulas Temáticas', path: '/aulas-tematicas', icon: Award },
@@ -56,8 +59,6 @@ const mainItems: SidebarItem[] = [
   { title: 'Aulas Salvas', path: '/aulas-salvas', icon: BookOpen },
   { title: 'Atividades', path: '/atividades', icon: Play },
   { title: 'Programas', path: '/programas', icon: Award },
-  { title: 'Controle de Frequência', path: '/frequencia', icon: Activity },
-  { title: 'Notificações Motivacionais', path: '/notificacoes', icon: Bell },
   { title: 'Relatórios', path: '/relatorios', icon: ChartBar },
   { title: 'Planilha e Faturamento', path: '/planilha-faturamento', icon: DollarSign },
 ];

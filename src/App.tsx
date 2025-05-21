@@ -21,6 +21,10 @@ import AlertasAutomaticos from "./pages/AlertasAutomaticos";
 import PainelGestao from "./pages/PainelGestao";
 import Chatbot from "./pages/Chatbot";
 import GestaoDatabase from "./pages/GestaoDatabase";
+import AnalisePreditiva from "./pages/AnalisePreditiva";
+import Configuracoes from "./pages/Configuracoes";
+import Notificacoes from "./pages/Notificacoes";
+import ControleFrequencia from "./pages/ControleFrequencia";
 
 // Create a client
 const queryClient = new QueryClient();
@@ -150,6 +154,38 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute>
             <GestaoDatabase />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/analise-preditiva" 
+        element={
+          <ProtectedRoute>
+            <AnalisePreditiva />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/configuracoes" 
+        element={
+          <ProtectedRoute>
+            <Configuracoes />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/notificacoes" 
+        element={
+          <ProtectedRoute>
+            <Notificacoes />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/controle-frequencia" 
+        element={
+          <ProtectedRoute>
+            <ControleFrequencia />
           </ProtectedRoute>
         } 
       />
