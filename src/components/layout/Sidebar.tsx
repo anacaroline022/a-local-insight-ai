@@ -25,7 +25,8 @@ import {
   ChartBar,
   Database,
   Hexagon,
-  Clock
+  Clock,
+  Save
 } from 'lucide-react';
 import { 
   Tooltip,
@@ -56,7 +57,7 @@ const mainItems: SidebarItem[] = [
   { title: 'Comunicação', path: '/chatbot', icon: MessageCircle },
   { title: 'Treinos e Aulas Temáticas', path: '/aulas-tematicas', icon: Award },
   { title: 'Cronograma de Treinos', path: '/cronograma-treinos', icon: Calendar },
-  { title: 'Aulas Salvas', path: '/aulas-salvas', icon: BookOpen },
+  { title: 'Aulas Salvas', path: '/aulas-salvas', icon: Save },
   { title: 'Atividades', path: '/atividades', icon: Play },
   { title: 'Programas', path: '/programas', icon: Award },
   { title: 'Relatórios', path: '/relatorios', icon: ChartBar },

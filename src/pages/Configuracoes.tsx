@@ -21,7 +21,8 @@ import {
   Fingerprint, 
   Shield, 
   Clock, 
-  Activity as ActivityIcon
+  Activity as ActivityIcon,
+  Search
 } from 'lucide-react';
 import { Switch } from "@/components/ui/switch";
 import { toast } from '@/hooks/use-toast';
