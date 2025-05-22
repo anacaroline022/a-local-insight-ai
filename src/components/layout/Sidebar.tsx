@@ -55,7 +55,7 @@ const mainItems: SidebarItem[] = [
   { title: 'Feedback de Alunos', path: '/feedback', icon: HeartPulse },
   { title: 'Comunicação', path: '/chatbot', icon: MessageCircle },
   { title: 'Treinos e Aulas Temáticas', path: '/aulas-tematicas', icon: Award },
-  { title: 'Cronograma de Treinos', path: '/cronograma', icon: Calendar },
+  { title: 'Cronograma de Treinos', path: '/cronograma-treinos', icon: Calendar },
   { title: 'Aulas Salvas', path: '/aulas-salvas', icon: BookOpen },
   { title: 'Atividades', path: '/atividades', icon: Play },
   { title: 'Programas', path: '/programas', icon: Award },

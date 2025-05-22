@@ -26,6 +26,7 @@ import Configuracoes from "./pages/Configuracoes";
 import Notificacoes from "./pages/Notificacoes";
 import ControleFrequencia from "./pages/ControleFrequencia";
 import FeedbackAlunos from "./pages/FeedbackAlunos";
+import CronogramaTreinos from "./pages/CronogramaTreinos";
 
 // Create a client
 const queryClient = new QueryClient();
@@ -195,6 +196,14 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute>
             <FeedbackAlunos />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/cronograma-treinos" 
+        element={
+          <ProtectedRoute>
+            <CronogramaTreinos />
           </ProtectedRoute>
         } 
       />
