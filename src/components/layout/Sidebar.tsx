@@ -28,6 +28,7 @@ import {
   Clock,
   Save
 } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { 
   Tooltip,
   TooltipContent,
@@ -86,18 +87,35 @@ const Sidebar: React.FC<{ collapsed: boolean; setCollapsed: (value: boolean) => 
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
-            <Link
-              to={item.path}
-              className={cn(
-                "flex items-center py-3 px-3 my-1 rounded-lg transition-colors",
-                isActive 
-                  ? "bg-academy-purple text-white" 
-                  : "text-foreground/70 hover:bg-secondary"
+            <div className="relative">
+              {isActive && (
+                <motion.div 
+                  className="absolute inset-0 bg-academy-purple rounded-lg z-0"
+                  layoutId="activeItem"
+                  transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                />
               )}
-            >
-              <Icon size={20} className={collapsed ? "mx-auto" : "mr-2"} />
-              {!collapsed && <span>{item.title}</span>}
-            </Link>
+              <Link
+                to={item.path}
+                className={cn(
+                  "flex items-center py-3 px-3 my-1 rounded-lg transition-colors relative z-10",
+                  isActive 
+                    ? "text-white" 
+                    : "text-foreground/70 hover:bg-secondary"
+                )}
+              >
+                <Icon size={20} className={collapsed ? "mx-auto" : "mr-2"} />
+                {!collapsed && (
+                  <motion.span 
+                    initial={false}
+                    animate={{ opacity: collapsed ? 0 : 1, width: collapsed ? 0 : 'auto' }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    {item.title}
+                  </motion.span>
+                )}
+              </Link>
+            </div>
           </TooltipTrigger>
           {collapsed && (
             <TooltipContent side="right">
@@ -110,24 +128,33 @@ const Sidebar: React.FC<{ collapsed: boolean; setCollapsed: (value: boolean) => 
   };
 
   return (
-    <div 
+    <motion.div 
       className={cn(
         "h-screen bg-background border-r border-border p-4 transition-all duration-300 flex flex-col",
-        collapsed ? "w-16" : "w-64"
       )}
+      initial={false}
+      animate={{ width: collapsed ? "4rem" : "16rem" }}
     >
       <div className="flex justify-between items-center mb-6">
         {!collapsed && (
-          <div className="text-xl font-bold text-gradient">
+          <motion.div 
+            className="text-xl font-bold text-gradient"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.3 }}
+          >
             {user?.academyName || "Academia"}
-          </div>
+          </motion.div>
         )}
-        <button 
+        <motion.button 
           onClick={() => setCollapsed(!collapsed)}
           className="p-1 rounded-full hover:bg-secondary"
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
         >
           {collapsed ? "→" : "←"}
-        </button>
+        </motion.button>
       </div>
 
       <div className="flex-1 overflow-y-auto">
@@ -143,7 +170,7 @@ const Sidebar: React.FC<{ collapsed: boolean; setCollapsed: (value: boolean) => 
           <SidebarItem key={item.path} item={item} />
         ))}
       </div>
-    </div>
+    </motion.div>
   );
 };
 

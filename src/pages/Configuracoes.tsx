@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import MainLayout from '@/components/layout/MainLayout';
 import { Button } from '@/components/ui/button';
@@ -22,7 +22,8 @@ import {
   Shield, 
   Clock, 
   Activity as ActivityIcon,
-  Search
+  Search,
+  ChevronRight
 } from 'lucide-react';
 import { Switch } from "@/components/ui/switch";
 import { toast } from '@/hooks/use-toast';
@@ -39,6 +40,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import { Separator } from "@/components/ui/separator";
 
 interface ConfigItem {
   id: string;
@@ -155,7 +162,13 @@ const syncItems: ConfigItem[] = [
     description: 'Forçar sincronização imediata',
     type: 'button',
     icon: <RefreshCcw className="h-4 w-4" />,
-    action: () => console.log('Manual sync initiated')
+    action: () => {
+      console.log('Manual sync initiated');
+      toast({
+        title: "Sincronização iniciada",
+        description: "Os dados estão sendo sincronizados agora."
+      });
+    }
   }
 ];
 
@@ -183,6 +196,58 @@ const personalItems: ConfigItem[] = [
   }
 ];
 
+// Categorias para o Grid estilo macOS
+const categoryItems = [
+  {
+    id: 'security',
+    title: 'Segurança',
+    icon: <Lock className="h-6 w-6" />,
+    description: 'Controles de acesso e backup',
+    color: 'bg-blue-50 dark:bg-blue-900/20',
+    iconColor: 'text-blue-500'
+  },
+  {
+    id: 'communication',
+    title: 'Comunicação',
+    icon: <Bell className="h-6 w-6" />,
+    description: 'Notificações e mensagens',
+    color: 'bg-amber-50 dark:bg-amber-900/20',
+    iconColor: 'text-amber-500'
+  },
+  {
+    id: 'sync',
+    title: 'Sincronização',
+    icon: <RefreshCcw className="h-6 w-6" />,
+    description: 'Cloud e backups',
+    color: 'bg-green-50 dark:bg-green-900/20',
+    iconColor: 'text-green-500'
+  },
+  {
+    id: 'personal',
+    title: 'Personalização',
+    icon: <User className="h-6 w-6" />,
+    description: 'Tema e preferências',
+    color: 'bg-purple-50 dark:bg-purple-900/20',
+    iconColor: 'text-purple-500'
+  },
+  {
+    id: 'financial',
+    title: 'Financeiro',
+    icon: <CreditCard className="h-6 w-6" />,
+    description: 'Pagamentos e taxas',
+    color: 'bg-rose-50 dark:bg-rose-900/20',
+    iconColor: 'text-rose-500'
+  },
+  {
+    id: 'ai',
+    title: 'Inteligência Artificial',
+    icon: <ActivityIcon className="h-6 w-6" />,
+    description: 'Configurações de IA',
+    color: 'bg-cyan-50 dark:bg-cyan-900/20',
+    iconColor: 'text-cyan-500'
+  }
+];
+
 const ConfigSection = ({ 
   items, 
   onChange 
@@ -195,17 +260,21 @@ const ConfigSection = ({
       {items.map((item) => (
         <motion.div 
           key={item.id}
-          className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/50 transition-colors"
-          whileHover={{ y: -1, backgroundColor: 'rgba(0,0,0,0.02)' }}
+          className="flex items-center justify-between p-3 rounded-lg hover:bg-muted/50 transition-colors"
+          whileHover={{ y: -2, backgroundColor: 'rgba(0,0,0,0.02)' }}
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ type: "spring", stiffness: 500, damping: 30 }}
         >
           <div className="flex items-start gap-3">
             {item.icon && (
-              <div className="mt-0.5 bg-secondary p-2 rounded-md">
+              <motion.div 
+                className={`mt-0.5 bg-secondary p-2 rounded-md`}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+              >
                 {item.icon}
-              </div>
+              </motion.div>
             )}
             <div>
               <h4 className="text-sm font-medium">{item.title}</h4>
@@ -215,11 +284,13 @@ const ConfigSection = ({
           
           <div>
             {item.type === 'toggle' && (
-              <Switch 
-                checked={item.value as boolean} 
-                onCheckedChange={(checked) => onChange(item.id, checked)}
-                className="data-[state=checked]:bg-academy-purple"
-              />
+              <motion.div whileTap={{ scale: 0.9 }}>
+                <Switch 
+                  checked={item.value as boolean} 
+                  onCheckedChange={(checked) => onChange(item.id, checked)}
+                  className="data-[state=checked]:bg-academy-purple"
+                />
+              </motion.div>
             )}
             
             {item.type === 'select' && (
@@ -241,18 +312,127 @@ const ConfigSection = ({
             )}
             
             {item.type === 'button' && (
-              <Button 
-                size="sm" 
-                variant="outline"
-                onClick={item.action}
-              >
-                {item.title.split(' ').pop()}
-              </Button>
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                <Button 
+                  size="sm" 
+                  variant="outline"
+                  onClick={item.action}
+                  className="transition-all"
+                >
+                  {item.title.split(' ').pop()}
+                </Button>
+              </motion.div>
             )}
           </div>
         </motion.div>
       ))}
     </div>
+  );
+};
+
+const CategoryGrid = ({
+  categories,
+  activeTab,
+  setActiveTab
+}: {
+  categories: typeof categoryItems,
+  activeTab: string,
+  setActiveTab: (id: string) => void
+}) => {
+  return (
+    <motion.div 
+      className="grid grid-cols-2 md:grid-cols-3 gap-4"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, staggerChildren: 0.1 }}
+    >
+      {categories.map((category) => (
+        <motion.div
+          key={category.id}
+          className={`p-4 rounded-xl cursor-pointer transition-all ${
+            activeTab === category.id ? 'ring-2 ring-academy-purple' : ''
+          } ${category.color}`}
+          onClick={() => setActiveTab(category.id)}
+          whileHover={{ y: -5, boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1)" }}
+          whileTap={{ scale: 0.98 }}
+        >
+          <div className={`rounded-full p-3 w-12 h-12 flex items-center justify-center mb-3 ${category.iconColor} bg-white/80`}>
+            {category.icon}
+          </div>
+          <h3 className="font-medium mb-1">{category.title}</h3>
+          <p className="text-xs text-muted-foreground">{category.description}</p>
+          <motion.div 
+            className="mt-2 flex items-center text-xs text-academy-purple"
+            animate={{ x: activeTab === category.id ? 5 : 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            <span className={activeTab === category.id ? "opacity-100" : "opacity-0"}>Visualizar</span>
+            <ChevronRight className="h-3 w-3 ml-1" />
+          </motion.div>
+        </motion.div>
+      ))}
+    </motion.div>
+  );
+};
+
+const usageData = {
+  storage: 65,
+  notifications: 42,
+  backups: 7
+};
+
+const UsageStats = () => {
+  // Animate the counters
+  const [counts, setCounts] = useState({
+    storage: 0,
+    notifications: 0,
+    backups: 0
+  });
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCounts(prev => ({
+        storage: prev.storage < usageData.storage ? prev.storage + 1 : usageData.storage,
+        notifications: prev.notifications < usageData.notifications ? prev.notifications + 1 : usageData.notifications,
+        backups: prev.backups < usageData.backups ? prev.backups + 1 : usageData.backups
+      }));
+    }, 30);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <motion.div 
+      className="grid grid-cols-3 gap-4 mb-8"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ delay: 0.3 }}
+    >
+      <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg text-center">
+        <h4 className="text-sm font-medium text-blue-600 dark:text-blue-400">Armazenamento</h4>
+        <div className="text-2xl font-bold mt-1 text-blue-700 dark:text-blue-300">{counts.storage}%</div>
+        <div className="w-full bg-blue-200 h-1.5 rounded-full mt-2">
+          <motion.div 
+            className="bg-blue-500 h-1.5 rounded-full"
+            initial={{ width: 0 }}
+            animate={{ width: `${counts.storage}%` }}
+            transition={{ duration: 1, ease: "easeOut" }}
+          />
+        </div>
+      </div>
+      
+      <div className="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg text-center">
+        <h4 className="text-sm font-medium text-amber-600 dark:text-amber-400">Notificações</h4>
+        <div className="text-2xl font-bold mt-1 text-amber-700 dark:text-amber-300">{counts.notifications}</div>
+        <p className="text-xs text-muted-foreground mt-2">Este mês</p>
+      </div>
+      
+      <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg text-center">
+        <h4 className="text-sm font-medium text-green-600 dark:text-green-400">Backups</h4>
+        <div className="text-2xl font-bold mt-1 text-green-700 dark:text-green-300">{counts.backups}</div>
+        <p className="text-xs text-muted-foreground mt-2">Última semana</p>
+      </div>
+    </motion.div>
   );
 };
 
@@ -263,6 +443,8 @@ const Configuracoes = () => {
   const [personalConfig, setPersonalConfig] = useState<ConfigItem[]>(personalItems);
   const [searchQuery, setSearchQuery] = useState('');
   const [showResetDialog, setShowResetDialog] = useState(false);
+  const [activeTab, setActiveTab] = useState('security');
+  const [isSearching, setIsSearching] = useState(false);
   
   const handleConfigChange = (category: 'security' | 'communication' | 'sync' | 'personal') => {
     return (id: string, value: boolean | string) => {
@@ -294,19 +476,22 @@ const Configuracoes = () => {
       
       setter(updatedItems);
       
-      // Show feedback toast
+      // Animação de confirmação
+      const item = items.find(item => item.id === id);
       toast({
         title: "Configuração atualizada",
-        description: `${items.find(item => item.id === id)?.title} foi atualizado.`
+        description: `${item?.title} foi atualizado com sucesso.`
       });
     };
   };
   
   const handleResetDefaults = () => {
-    setSecurityConfig(securityItems);
-    setCommunicationConfig(communicationItems);
-    setSyncConfig(syncItems);
-    setPersonalConfig(personalItems);
+    // Animação de reset
+    setSecurityConfig(securityItems.map(item => ({...item})));
+    setCommunicationConfig(communicationItems.map(item => ({...item})));
+    setSyncConfig(syncItems.map(item => ({...item})));
+    setPersonalConfig(personalItems.map(item => ({...item})));
+    
     setShowResetDialog(false);
     
     toast({
@@ -334,19 +519,111 @@ const Configuracoes = () => {
   
   const filtered = filteredItems();
   
+  // Função para renderizar o conteúdo da tab ativa
+  const renderActiveTabContent = () => {
+    switch (activeTab) {
+      case 'security':
+        return (
+          <motion.div 
+            key="security"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.3 }}
+          >
+            <h3 className="text-lg font-medium mb-4 flex items-center">
+              <Lock className="h-5 w-5 mr-2 text-academy-purple" />
+              Segurança
+            </h3>
+            <ConfigSection 
+              items={securityConfig}
+              onChange={handleConfigChange('security')}
+            />
+          </motion.div>
+        );
+      case 'communication':
+        return (
+          <motion.div 
+            key="communication"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.3 }}
+          >
+            <h3 className="text-lg font-medium mb-4 flex items-center">
+              <Bell className="h-5 w-5 mr-2 text-academy-purple" />
+              Comunicação
+            </h3>
+            <ConfigSection 
+              items={communicationConfig}
+              onChange={handleConfigChange('communication')}
+            />
+          </motion.div>
+        );
+      case 'sync':
+        return (
+          <motion.div 
+            key="sync"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.3 }}
+          >
+            <h3 className="text-lg font-medium mb-4 flex items-center">
+              <RefreshCcw className="h-5 w-5 mr-2 text-academy-purple" />
+              Sincronização
+            </h3>
+            <ConfigSection 
+              items={syncConfig}
+              onChange={handleConfigChange('sync')}
+            />
+          </motion.div>
+        );
+      case 'personal':
+        return (
+          <motion.div 
+            key="personal"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.3 }}
+          >
+            <h3 className="text-lg font-medium mb-4 flex items-center">
+              <User className="h-5 w-5 mr-2 text-academy-purple" />
+              Personalização
+            </h3>
+            <ConfigSection 
+              items={personalConfig}
+              onChange={handleConfigChange('personal')}
+            />
+          </motion.div>
+        );
+      default:
+        return (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3 }}
+          >
+            <p className="text-muted-foreground">Selecione uma categoria para visualizar as configurações.</p>
+          </motion.div>
+        );
+    }
+  };
+  
   return (
     <MainLayout
       pageTitle="Configurações"
       pageSubtitle="Personalize a aplicação de acordo com suas preferências"
-      headerImage="https://images.unsplash.com/photo-1470165407954-59ca31db8ab4?auto=format&fit=crop&w=2000&q=80"
+      headerImage="https://images.unsplash.com/photo-1594882645126-14020914d58d?auto=format&fit=crop&w=2000&q=80"
     >
       <motion.div 
-        className="max-w-3xl mx-auto space-y-8"
+        className="max-w-4xl mx-auto space-y-8"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        {/* Header icon */}
+        {/* Header icon com animação */}
         <motion.div 
           className="flex justify-center mb-6"
           initial={{ scale: 0 }}
@@ -358,46 +635,84 @@ const Configuracoes = () => {
             delay: 0.3 
           }}
         >
-          <div className="bg-secondary rounded-full p-6">
+          <motion.div 
+            className="bg-secondary rounded-full p-6 relative"
+            animate={{ 
+              boxShadow: ["0px 0px 0px rgba(124, 58, 237, 0)", "0px 0px 20px rgba(124, 58, 237, 0.5)", "0px 0px 0px rgba(124, 58, 237, 0)"] 
+            }}
+            transition={{ duration: 2, repeat: Infinity, repeatDelay: 1 }}
+          >
             <Settings className="h-12 w-12 text-academy-purple" />
-          </div>
+          </motion.div>
         </motion.div>
         
-        {/* Search bar */}
+        {/* Estatísticas de uso animadas */}
+        <UsageStats />
+        
+        {/* Search bar com animação */}
         <div className="relative">
-          <input
+          <motion.input
             type="text"
             placeholder="Buscar ajustes..."
-            className="w-full py-2 pl-10 pr-4 border border-border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-academy-purple"
+            className="w-full py-2 pl-10 pr-4 border border-border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-academy-purple transition-all"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
+            onFocus={() => setIsSearching(true)}
+            onBlur={() => setIsSearching(false)}
+            animate={{ 
+              paddingLeft: isSearching ? "40px" : "40px",
+              boxShadow: isSearching ? "0px 2px 15px rgba(0, 0, 0, 0.1)" : "none" 
+            }}
           />
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+          <motion.div 
+            className="absolute left-3 top-1/2 transform -translate-y-1/2"
+            animate={{ scale: isSearching ? 1.2 : 1 }}
+            transition={{ type: "spring", stiffness: 300, damping: 15 }}
+          >
+            <Search className="h-5 w-5 text-muted-foreground" />
+          </motion.div>
         </div>
         
         {/* Search results */}
-        {filtered && filtered.length > 0 && (
-          <motion.div 
-            className="bg-background border border-border rounded-lg p-4 shadow-sm"
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-          >
-            <h3 className="text-sm font-medium mb-2">Resultados da busca</h3>
-            <div className="space-y-4">
-              {filtered.map((item) => (
-                <div key={item.id} className="flex items-center justify-between p-2 hover:bg-muted/50 rounded-lg">
-                  <div>
-                    <h4 className="text-sm font-medium">{item.title}</h4>
-                    <p className="text-xs text-muted-foreground">{item.description}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </motion.div>
-        )}
+        <AnimatePresence>
+          {filtered && filtered.length > 0 && (
+            <motion.div 
+              className="bg-background border border-border rounded-lg p-4 shadow-sm"
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ type: "spring", stiffness: 300, damping: 25 }}
+            >
+              <h3 className="text-sm font-medium mb-2">Resultados da busca</h3>
+              <div className="space-y-4">
+                {filtered.map((item) => (
+                  <motion.div 
+                    key={item.id} 
+                    className="flex items-center justify-between p-2 hover:bg-muted/50 rounded-lg"
+                    initial={{ opacity: 0, y: 5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -5 }}
+                    transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                  >
+                    <div className="flex items-center gap-3">
+                      {item.icon && (
+                        <div className="bg-secondary p-2 rounded-md">
+                          {item.icon}
+                        </div>
+                      )}
+                      <div>
+                        <h4 className="text-sm font-medium">{item.title}</h4>
+                        <p className="text-xs text-muted-foreground">{item.description}</p>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
         
-        {/* Main settings */}
+        {/* Main settings grid */}
         {!searchQuery && (
           <motion.div 
             className="bg-background border border-border rounded-lg shadow-sm overflow-hidden"
@@ -405,98 +720,61 @@ const Configuracoes = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2, duration: 0.5 }}
           >
-            <Tabs defaultValue="security">
-              <div className="flex justify-center border-b">
-                <TabsList className="grid grid-cols-4 w-full max-w-lg">
-                  <TabsTrigger value="security" className="data-[state=active]:text-academy-purple">
-                    <Lock className="h-4 w-4 mr-1" />
-                    <span className="hidden sm:inline">Segurança</span>
-                  </TabsTrigger>
-                  <TabsTrigger value="communication" className="data-[state=active]:text-academy-purple">
-                    <Bell className="h-4 w-4 mr-1" />
-                    <span className="hidden sm:inline">Comunicação</span>
-                  </TabsTrigger>
-                  <TabsTrigger value="sync" className="data-[state=active]:text-academy-purple">
-                    <RefreshCcw className="h-4 w-4 mr-1" />
-                    <span className="hidden sm:inline">Sincronização</span>
-                  </TabsTrigger>
-                  <TabsTrigger value="personal" className="data-[state=active]:text-academy-purple">
-                    <User className="h-4 w-4 mr-1" />
-                    <span className="hidden sm:inline">Personalização</span>
-                  </TabsTrigger>
-                </TabsList>
-              </div>
-              
-              <div className="p-6">
-                <TabsContent value="security" className="mt-0">
-                  <motion.div 
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                  >
-                    <h3 className="text-lg font-medium mb-4 flex items-center">
-                      <Lock className="h-5 w-5 mr-2 text-academy-purple" />
-                      Segurança
-                    </h3>
-                    <ConfigSection 
-                      items={securityConfig}
-                      onChange={handleConfigChange('security')}
-                    />
-                  </motion.div>
-                </TabsContent>
-                
-                <TabsContent value="communication" className="mt-0">
-                  <motion.div 
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                  >
-                    <h3 className="text-lg font-medium mb-4 flex items-center">
-                      <Bell className="h-5 w-5 mr-2 text-academy-purple" />
-                      Comunicação
-                    </h3>
-                    <ConfigSection 
-                      items={communicationConfig}
-                      onChange={handleConfigChange('communication')}
-                    />
-                  </motion.div>
-                </TabsContent>
-                
-                <TabsContent value="sync" className="mt-0">
-                  <motion.div 
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                  >
-                    <h3 className="text-lg font-medium mb-4 flex items-center">
-                      <RefreshCcw className="h-5 w-5 mr-2 text-academy-purple" />
-                      Sincronização
-                    </h3>
-                    <ConfigSection 
-                      items={syncConfig}
-                      onChange={handleConfigChange('sync')}
-                    />
-                  </motion.div>
-                </TabsContent>
-                
-                <TabsContent value="personal" className="mt-0">
-                  <motion.div 
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                  >
-                    <h3 className="text-lg font-medium mb-4 flex items-center">
-                      <User className="h-5 w-5 mr-2 text-academy-purple" />
-                      Personalização
-                    </h3>
-                    <ConfigSection 
-                      items={personalConfig}
-                      onChange={handleConfigChange('personal')}
-                    />
-                  </motion.div>
-                </TabsContent>
-              </div>
-            </Tabs>
+            {/* Grid de categorias de configuração */}
+            <div className="p-6 border-b border-border">
+              <h3 className="text-lg font-medium mb-4">Categorias</h3>
+              <CategoryGrid 
+                categories={categoryItems} 
+                activeTab={activeTab} 
+                setActiveTab={setActiveTab}
+              />
+            </div>
+            
+            {/* Conteúdo da categoria selecionada */}
+            <div className="p-6">
+              <AnimatePresence mode='wait'>
+                {renderActiveTabContent()}
+              </AnimatePresence>
+            </div>
+          </motion.div>
+        )}
+        
+        {/* Informações de cache e armazenamento */}
+        {!searchQuery && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4, duration: 0.5 }}
+          >
+            <Collapsible className="border border-border rounded-lg overflow-hidden">
+              <CollapsibleTrigger className="flex justify-between items-center w-full p-4 text-left">
+                <div className="flex items-center">
+                  <Database className="h-5 w-5 mr-2 text-muted-foreground" />
+                  <span className="font-medium">Informações do sistema</span>
+                </div>
+                <ChevronRight className="h-4 w-4 text-muted-foreground transform transition-transform" />
+              </CollapsibleTrigger>
+              <CollapsibleContent>
+                <div className="p-4 pt-0 space-y-2">
+                  <div className="flex justify-between items-center py-2 border-t border-border">
+                    <span className="text-sm text-muted-foreground">Versão do app</span>
+                    <span className="text-sm">4.2.1 (Build 20240516)</span>
+                  </div>
+                  <div className="flex justify-between items-center py-2 border-t border-border">
+                    <span className="text-sm text-muted-foreground">Cache de dados</span>
+                    <span className="text-sm">256MB</span>
+                  </div>
+                  <div className="flex justify-between items-center py-2 border-t border-border">
+                    <span className="text-sm text-muted-foreground">Armazenamento usado</span>
+                    <span className="text-sm">1.2GB / 5GB</span>
+                  </div>
+                  <div className="flex justify-between items-center py-2 border-t border-border">
+                    <span className="text-sm text-muted-foreground">Último login</span>
+                    <span className="text-sm">Hoje, 14:32</span>
+                  </div>
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
           </motion.div>
         )}
         
@@ -505,13 +783,16 @@ const Configuracoes = () => {
           <div className="text-sm text-muted-foreground">
             versão 4.2.1 (Build 20240516)
           </div>
-          <Button 
-            variant="destructive" 
-            size="sm"
-            onClick={handleResetDefaults}
-          >
-            Restaurar Padrões
-          </Button>
+          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+            <Button 
+              variant="destructive" 
+              size="sm"
+              onClick={handleResetDefaults}
+              className="transition-colors"
+            >
+              Restaurar Padrões
+            </Button>
+          </motion.div>
         </div>
       </motion.div>
     </MainLayout>
@@ -519,3 +800,4 @@ const Configuracoes = () => {
 };
 
 export default Configuracoes;
+
