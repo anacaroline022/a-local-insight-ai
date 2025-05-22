@@ -25,6 +25,7 @@ import AnalisePreditiva from "./pages/AnalisePreditiva";
 import Configuracoes from "./pages/Configuracoes";
 import Notificacoes from "./pages/Notificacoes";
 import ControleFrequencia from "./pages/ControleFrequencia";
+import FeedbackAlunos from "./pages/FeedbackAlunos";
 
 // Create a client
 const queryClient = new QueryClient();
@@ -186,6 +187,14 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute>
             <ControleFrequencia />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/feedback" 
+        element={
+          <ProtectedRoute>
+            <FeedbackAlunos />
           </ProtectedRoute>
         } 
       />
