@@ -67,15 +67,15 @@ const Perfil: React.FC = () => {
         <div 
           className="absolute inset-0 bg-cover bg-center"
           style={{
-            backgroundImage: `url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80')`,
+            backgroundImage: `url('https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80')`,
             filter: 'sepia(30%) contrast(110%) grayscale(20%)'
           }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
         <div className="absolute bottom-6 left-6 text-white">
           <motion.h1 
-            className="text-4xl font-bold mb-2 font-mono tracking-wider"
-            style={{ fontFamily: 'Chicago, monospace', textShadow: '2px 2px 0px #000000' }}
+            className="text-4xl font-bold mb-2"
+            style={{ fontFamily: 'Monaco, "Lucida Console", monospace', textShadow: '2px 2px 0px #000000' }}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
@@ -84,6 +84,7 @@ const Perfil: React.FC = () => {
           </motion.h1>
           <motion.p 
             className="text-xl text-red-500 font-bold"
+            style={{ fontFamily: 'Monaco, "Lucida Console", monospace' }}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
@@ -94,7 +95,7 @@ const Perfil: React.FC = () => {
       </div>
 
       {/* Stats Section - No Cards */}
-      <div className="grid grid-cols-3 gap-8 mb-8 p-6 bg-black/5 rounded-xl border-b-2 border-gray-300">
+      <div className="grid grid-cols-3 gap-8 mb-8 p-6 bg-black/5 rounded-xl border-b-2 border-gray-300" style={{ fontFamily: 'Monaco, "Lucida Console", monospace' }}>
         <motion.div 
           className="text-center"
           whileHover={{ scale: 1.05 }}
@@ -134,8 +135,9 @@ const Perfil: React.FC = () => {
             >
               <Button
                 onClick={() => handleAction(button.label)}
-                className="w-full h-24 bg-white border-2 border-black text-black hover:bg-black hover:text-white transition-all duration-300 font-mono text-sm"
+                className="w-full h-24 bg-white border-2 border-black text-black hover:bg-black hover:text-white transition-all duration-300 text-sm"
                 style={{
+                  fontFamily: 'Monaco, "Lucida Console", monospace',
                   transform: 'none',
                   boxShadow: '4px 4px 0px #000000'
                 }}
@@ -163,7 +165,7 @@ const Perfil: React.FC = () => {
       </div>
 
       {/* Dynamic Highlights */}
-      <div className="grid grid-cols-2 gap-8 mb-8">
+      <div className="grid grid-cols-2 gap-8 mb-8" style={{ fontFamily: 'Monaco, "Lucida Console", monospace' }}>
         {/* Frequency Chart */}
         <motion.div
           className="bg-black p-6 rounded-xl"
@@ -171,7 +173,7 @@ const Perfil: React.FC = () => {
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.6 }}
         >
-          <h3 className="text-lime-400 font-mono text-lg mb-4 uppercase tracking-wider">
+          <h3 className="text-lime-400 text-lg mb-4 uppercase tracking-wider">
             Frequência Semanal
           </h3>
           <ResponsiveContainer width="100%" height={200}>
@@ -195,14 +197,14 @@ const Perfil: React.FC = () => {
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.6 }}
         >
-          <h3 className="text-lg font-bold mb-4 font-mono uppercase tracking-wider">
+          <h3 className="text-lg font-bold mb-4 uppercase tracking-wider">
             Membros VIP
           </h3>
           <div className="space-y-1">
             {vipMembers.map((member, index) => (
               <motion.div
                 key={member.name}
-                className={`p-3 flex justify-between items-center font-mono text-sm ${
+                className={`p-3 flex justify-between items-center text-sm ${
                   index % 2 === 0 ? 'bg-green-50' : 'bg-pink-50'
                 } border-l-4 border-gray-300`}
                 whileHover={{ backgroundColor: '#f0f0f0', scale: 1.02 }}
@@ -219,13 +221,13 @@ const Perfil: React.FC = () => {
       </div>
 
       {/* Control Panel Tabs */}
-      <div className="bg-gray-100 rounded-xl p-6">
+      <div className="bg-gray-100 rounded-xl p-6" style={{ fontFamily: 'Monaco, "Lucida Console", monospace' }}>
         <div className="flex space-x-1 mb-6 border-b-2 border-gray-300">
           {tabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`px-6 py-3 font-mono text-sm uppercase tracking-wide transition-all duration-300 ${
+              className={`px-6 py-3 text-sm uppercase tracking-wide transition-all duration-300 ${
                 activeTab === tab.id
                   ? 'bg-black text-white border-b-4 border-red-500'
                   : 'text-gray-600 hover:text-black hover:bg-gray-200'
@@ -244,7 +246,7 @@ const Perfil: React.FC = () => {
           className="min-h-[200px]"
         >
           {activeTab === 'agendamentos' && (
-            <div className="grid grid-cols-7 gap-2 font-mono text-sm">
+            <div className="grid grid-cols-7 gap-2 text-sm">
               {['DOM', 'SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SÁB'].map((day) => (
                 <div key={day} className="bg-white p-4 text-center border border-gray-300">
                   <div className="font-bold mb-2">{day}</div>
@@ -257,7 +259,7 @@ const Perfil: React.FC = () => {
           )}
           
           {activeTab === 'financeiro' && (
-            <div className="space-y-2 font-mono">
+            <div className="space-y-2">
               <div className="grid grid-cols-3 gap-4 text-sm">
                 <div className="bg-green-100 p-4 border-l-4 border-green-500">
                   <div className="font-bold">Entradas</div>
@@ -282,7 +284,7 @@ const Perfil: React.FC = () => {
                 'Equipamento Esteira 03 - Manutenção necessária',
                 'Maria Santos - 15 dias sem treinar'
               ].map((alert, index) => (
-                <div key={index} className="bg-yellow-200 p-3 border-l-4 border-yellow-500 font-mono text-sm">
+                <div key={index} className="bg-yellow-200 p-3 border-l-4 border-yellow-500 text-sm">
                   ⚠️ {alert}
                 </div>
               ))}

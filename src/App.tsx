@@ -31,6 +31,7 @@ import IntegracaoAPIs from "./pages/IntegracaoAPIs";
 import Perfil from "./pages/Perfil";
 import ProgramaFidelidade from "./pages/ProgramaFidelidade";
 import Idiomas from "./pages/Idiomas";
+import Atividades from "./pages/Atividades";
 
 // Create a client
 const queryClient = new QueryClient();
@@ -248,6 +249,14 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute>
             <ProgramaFidelidade />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/atividades" 
+        element={
+          <ProtectedRoute>
+            <Atividades />
           </ProtectedRoute>
         } 
       />
