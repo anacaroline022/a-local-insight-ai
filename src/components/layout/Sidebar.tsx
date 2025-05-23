@@ -26,7 +26,8 @@ import {
   Hexagon,
   Clock,
   Save,
-  Puzzle
+  Puzzle,
+  Gift
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { 
@@ -56,6 +57,7 @@ const mainItems: SidebarItem[] = [
   { title: 'Plataforma de Pagamentos', path: '/pagamentos', icon: FileSpreadsheet },
   { title: 'Feedback de Alunos', path: '/feedback', icon: HeartPulse },
   { title: 'Integração com APIs', path: '/integracao-apis', icon: Puzzle },
+  { title: 'Programa de Fidelidade', path: '/programa-fidelidade', icon: Gift },
   { title: 'Comunicação', path: '/chatbot', icon: MessageCircle },
   { title: 'Treinos e Aulas Temáticas', path: '/aulas-tematicas', icon: Award },
   { title: 'Cronograma de Treinos', path: '/cronograma-treinos', icon: Calendar },
@@ -73,60 +75,60 @@ const bottomItems: SidebarItem[] = [
   { title: 'Idiomas', path: '/idiomas', icon: Globe },
 ];
 
+const SidebarItem: React.FC<{ item: SidebarItem }> = ({ item }) => {
+  const isActive = location.pathname === item.path;
+  const Icon = item.icon;
+
+  return (
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <div className="relative">
+            {isActive && (
+              <motion.div 
+                className="absolute inset-0 bg-academy-purple rounded-lg z-0"
+                layoutId="activeItem"
+                transition={{ type: "spring", stiffness: 380, damping: 30 }}
+              />
+            )}
+            <Link
+              to={item.path}
+              className={cn(
+                "flex items-center py-3 px-3 my-1 rounded-lg transition-colors relative z-10",
+                isActive 
+                  ? "text-white" 
+                  : "text-foreground/70 hover:bg-secondary"
+              )}
+            >
+              <Icon size={20} className={collapsed ? "mx-auto" : "mr-2"} />
+              {!collapsed && (
+                <motion.span 
+                  initial={false}
+                  animate={{ opacity: collapsed ? 0 : 1, width: collapsed ? 0 : 'auto' }}
+                  transition={{ duration: 0.2 }}
+                >
+                  {item.title}
+                </motion.span>
+              )}
+            </Link>
+          </div>
+        </TooltipTrigger>
+        {collapsed && (
+          <TooltipContent side="right">
+            {item.title}
+          </TooltipContent>
+        )}
+      </Tooltip>
+    </TooltipProvider>
+  );
+};
+
 const Sidebar: React.FC<{ collapsed: boolean; setCollapsed: (value: boolean) => void }> = ({
   collapsed,
   setCollapsed
 }) => {
   const location = useLocation();
   const { user } = useAuth();
-
-  const SidebarItem: React.FC<{ item: SidebarItem }> = ({ item }) => {
-    const isActive = location.pathname === item.path;
-    const Icon = item.icon;
-
-    return (
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <div className="relative">
-              {isActive && (
-                <motion.div 
-                  className="absolute inset-0 bg-academy-purple rounded-lg z-0"
-                  layoutId="activeItem"
-                  transition={{ type: "spring", stiffness: 380, damping: 30 }}
-                />
-              )}
-              <Link
-                to={item.path}
-                className={cn(
-                  "flex items-center py-3 px-3 my-1 rounded-lg transition-colors relative z-10",
-                  isActive 
-                    ? "text-white" 
-                    : "text-foreground/70 hover:bg-secondary"
-                )}
-              >
-                <Icon size={20} className={collapsed ? "mx-auto" : "mr-2"} />
-                {!collapsed && (
-                  <motion.span 
-                    initial={false}
-                    animate={{ opacity: collapsed ? 0 : 1, width: collapsed ? 0 : 'auto' }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    {item.title}
-                  </motion.span>
-                )}
-              </Link>
-            </div>
-          </TooltipTrigger>
-          {collapsed && (
-            <TooltipContent side="right">
-              {item.title}
-            </TooltipContent>
-          )}
-        </Tooltip>
-      </TooltipProvider>
-    );
-  };
 
   return (
     <motion.div 

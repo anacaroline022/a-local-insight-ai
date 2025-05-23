@@ -29,6 +29,8 @@ import FeedbackAlunos from "./pages/FeedbackAlunos";
 import CronogramaTreinos from "./pages/CronogramaTreinos";
 import AulasSalvas from "./pages/AulasSalvas";
 import IntegracaoAPIs from "./pages/IntegracaoAPIs";
+import Perfil from "./pages/Perfil";
+import ProgramaFidelidade from "./pages/ProgramaFidelidade";
 
 // Create a client
 const queryClient = new QueryClient();
@@ -222,6 +224,22 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute>
             <IntegracaoAPIs />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/perfil" 
+        element={
+          <ProtectedRoute>
+            <Perfil />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/programa-fidelidade" 
+        element={
+          <ProtectedRoute>
+            <ProgramaFidelidade />
           </ProtectedRoute>
         } 
       />
