@@ -1,4 +1,3 @@
-
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "@/components/ui/toaster";
@@ -31,6 +30,7 @@ import AulasSalvas from "./pages/AulasSalvas";
 import IntegracaoAPIs from "./pages/IntegracaoAPIs";
 import Perfil from "./pages/Perfil";
 import ProgramaFidelidade from "./pages/ProgramaFidelidade";
+import Idiomas from "./pages/Idiomas";
 
 // Create a client
 const queryClient = new QueryClient();
@@ -224,6 +224,14 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute>
             <IntegracaoAPIs />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/idiomas" 
+        element={
+          <ProtectedRoute>
+            <Idiomas />
           </ProtectedRoute>
         } 
       />

@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -66,16 +67,17 @@ const mainItems: SidebarItem[] = [
   { title: 'Programas', path: '/programas', icon: Award },
   { title: 'Relatórios', path: '/relatorios', icon: ChartBar },
   { title: 'Planilha e Faturamento', path: '/planilha-faturamento', icon: DollarSign },
+  { title: 'Idiomas', path: '/idiomas', icon: Globe },
 ];
 
 const bottomItems: SidebarItem[] = [
   { title: 'Configurações', path: '/configuracoes', icon: Settings },
   { title: 'Perfil', path: '/perfil', icon: User },
   { title: 'Nutrição', path: '/nutricao', icon: Utensils },
-  { title: 'Idiomas', path: '/idiomas', icon: Globe },
 ];
 
-const SidebarItem: React.FC<{ item: SidebarItem }> = ({ item }) => {
+const SidebarItem: React.FC<{ item: SidebarItem; collapsed: boolean }> = ({ item, collapsed }) => {
+  const location = useLocation();
   const isActive = location.pathname === item.path;
   const Icon = item.icon;
 
@@ -163,14 +165,14 @@ const Sidebar: React.FC<{ collapsed: boolean; setCollapsed: (value: boolean) => 
       <div className="flex-1 overflow-y-auto">
         <div className="space-y-1">
           {mainItems.map((item) => (
-            <SidebarItem key={item.path} item={item} />
+            <SidebarItem key={item.path} item={item} collapsed={collapsed} />
           ))}
         </div>
       </div>
 
       <div className="pt-4 border-t border-border mt-4">
         {bottomItems.map((item) => (
-          <SidebarItem key={item.path} item={item} />
+          <SidebarItem key={item.path} item={item} collapsed={collapsed} />
         ))}
       </div>
     </motion.div>
