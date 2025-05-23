@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -26,7 +25,8 @@ import {
   Database,
   Hexagon,
   Clock,
-  Save
+  Save,
+  Puzzle
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { 
@@ -55,6 +55,7 @@ const mainItems: SidebarItem[] = [
   { title: 'Chatbot Inteligente', path: '/chatbot', icon: Hexagon },
   { title: 'Plataforma de Pagamentos', path: '/pagamentos', icon: FileSpreadsheet },
   { title: 'Feedback de Alunos', path: '/feedback', icon: HeartPulse },
+  { title: 'Integração com APIs', path: '/integracao-apis', icon: Puzzle },
   { title: 'Comunicação', path: '/chatbot', icon: MessageCircle },
   { title: 'Treinos e Aulas Temáticas', path: '/aulas-tematicas', icon: Award },
   { title: 'Cronograma de Treinos', path: '/cronograma-treinos', icon: Calendar },
