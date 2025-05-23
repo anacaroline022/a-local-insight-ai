@@ -1,118 +1,157 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import MainLayout from '@/components/layout/MainLayout';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
+import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, LineChart, Line } from 'recharts';
 import { 
-  Play, 
-  Stop, 
-  AlertTriangle, 
-  Download, 
-  History, 
+  Users, 
+  DollarSign, 
+  UserPlus, 
+  Calendar,
+  TrendingUp,
+  Award,
+  Settings,
+  Bell,
+  Square,
+  Play,
   Plus,
-  Clock,
-  Users,
-  Activity,
-  Dumbbell,
-  CheckCircle,
-  AlertCircle,
-  XCircle
+  History
 } from 'lucide-react';
 
-const scheduleData = [
-  { day: 'Seg', time: '06:00', activity: 'Spinning', room: 'Sala A', participants: 12, status: 'active' },
-  { day: 'Seg', time: '08:00', activity: 'Yoga', room: 'Sala B', participants: 8, status: 'active' },
-  { day: 'Ter', time: '07:00', activity: 'HIIT', room: 'Sala A', participants: 15, status: 'scheduled' },
-  { day: 'Qua', time: '19:00', activity: 'Boxe', room: 'Sala C', participants: 10, status: 'active' },
-  { day: 'Qui', time: '18:00', activity: 'Crossfit', room: 'Sala A', participants: 20, status: 'scheduled' },
+// Mock data for the page
+const activityData = [
+  { hour: '06', value: 4 },
+  { hour: '08', value: 12 },
+  { hour: '10', value: 18 },
+  { hour: '12', value: 15 },
+  { hour: '14', value: 22 },
+  { hour: '16', value: 30 },
+  { hour: '18', value: 35 },
+  { hour: '20', value: 25 },
+  { hour: '22', value: 10 },
 ];
 
 const equipmentStatus = [
-  { name: 'Esteira #1', status: 'operational', usage: '5/8' },
-  { name: 'Esteira #2', status: 'maintenance', usage: '0/8' },
-  { name: 'Bike #1', status: 'operational', usage: '3/6' },
-  { name: 'Halteres', status: 'operational', usage: '12/20' },
-  { name: 'Cabo de Força', status: 'partial', usage: '2/4' },
+  { name: 'Esteira #1', status: 'operational' },
+  { name: 'Esteira #2', status: 'maintenance', timeRemaining: '45min' },
+  { name: 'Esteira #3', status: 'operational' },
+  { name: 'Bicicleta #1', status: 'partial', issue: 'Sensor de batimentos' },
+  { name: 'Elíptico #1', status: 'operational' },
+  { name: 'Remo #1', status: 'operational' },
+  { name: 'Multi-força #1', status: 'maintenance', timeRemaining: '2h' },
 ];
 
-const recentCheckIns = [
-  { name: 'Maria Silva', time: '14:30', activity: 'Spinning' },
-  { name: 'João Santos', time: '14:25', activity: 'Musculação' },
-  { name: 'Ana Costa', time: '14:20', activity: 'Yoga' },
-  { name: 'Carlos Lima', time: '14:15', activity: 'HIIT' },
+const scheduleData = [
+  { id: 1, name: 'Yoga', color: '#800080', day: 'Seg', time: '08:00', duration: 60, room: 'Sala A' },
+  { id: 2, name: 'Boxe', color: '#FF0000', day: 'Seg', time: '10:00', duration: 45, room: 'Sala B' },
+  { id: 3, name: 'Pilates', color: '#4169E1', day: 'Ter', time: '09:00', duration: 50, room: 'Sala A' },
+  { id: 4, name: 'Spinning', color: '#FF8C00', day: 'Ter', time: '18:00', duration: 45, room: 'Sala B' },
+  { id: 5, name: 'Funcional', color: '#008000', day: 'Qua', time: '07:00', duration: 60, room: 'Sala C' },
+  { id: 6, name: 'Zumba', color: '#FF1493', day: 'Qua', time: '19:00', duration: 60, room: 'Sala A' },
+  { id: 7, name: 'Muay Thai', color: '#8B0000', day: 'Qui', time: '20:00', duration: 60, room: 'Sala B' },
+  { id: 8, name: 'Yoga', color: '#800080', day: 'Sex', time: '08:00', duration: 60, room: 'Sala A' },
+  { id: 9, name: 'Crossfit', color: '#4B0082', day: 'Sex', time: '17:00', duration: 45, room: 'Sala C' },
 ];
+
+const daysOfWeek = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
+const timeSlots = ['06:00', '08:00', '10:00', '12:00', '14:00', '16:00', '18:00', '20:00', '22:00'];
 
 const Atividades: React.FC = () => {
   const { toast } = useToast();
   const [activeClasses, setActiveClasses] = useState(3);
-  const [totalCheckIns, setTotalCheckIns] = useState(45);
-  const [systemStatus, setSystemStatus] = useState('online');
+  const [freeEquipment, setFreeEquipment] = useState(15);
+  const [checkIns, setCheckIns] = useState(activityData);
 
-  useEffect(() => {
-    // Simulate real-time updates
+  // Simulate real-time updates
+  React.useEffect(() => {
     const interval = setInterval(() => {
-      setActiveClasses(prev => Math.max(1, prev + Math.floor(Math.random() * 3) - 1));
-      setTotalCheckIns(prev => prev + Math.floor(Math.random() * 2));
-    }, 15000);
+      // Update check-ins with random data
+      setCheckIns(prev => {
+        return prev.map(item => ({
+          ...item,
+          value: Math.max(0, item.value + Math.floor(Math.random() * 7) - 3)
+        }));
+      });
+
+      // Randomly update free equipment count
+      setFreeEquipment(prev => Math.min(20, Math.max(5, prev + Math.floor(Math.random() * 3) - 1)));
+    }, 5000);
 
     return () => clearInterval(interval);
   }, []);
 
   const handleAction = (action: string) => {
-    const messages = {
-      'iniciar-aula': 'Aula iniciada com sucesso!',
-      'encerrar-tudo': 'Todas as atividades foram encerradas!',
-      'emergencia': 'Protocolo de emergência ativado!',
-      'exportar-dados': 'Dados exportados com sucesso!',
-      'historico': 'Histórico carregado!',
-      'nova-atividade': 'Nova atividade criada!'
-    };
+    let message = '';
+    switch(action) {
+      case 'start':
+        message = 'Aula iniciada! Notificação enviada aos alunos.';
+        break;
+      case 'stop':
+        message = 'Todas as atividades foram interrompidas!';
+        break;
+      case 'emergency':
+        message = 'Protocolo de emergência ativado!';
+        break;
+      case 'export':
+        message = 'Dados exportados com sucesso!';
+        break;
+      case 'history':
+        message = 'Carregando histórico de 24h...';
+        break;
+      case 'new':
+        message = 'Nova atividade adicionada com sucesso!';
+        break;
+    }
     
     toast({
-      title: messages[action] || `${action} executado!`,
-      description: `Ação "${action}" realizada com sucesso.`,
-      className: action === 'emergencia' ? "bg-red-500 text-white border-none" : "bg-green-500 text-white border-none",
+      title: message,
+      className: "bg-green-500 text-white border-none",
     });
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'operational': return 'text-green-400';
-      case 'maintenance': return 'text-red-400';
-      case 'partial': return 'text-yellow-400';
-      default: return 'text-gray-400';
+  const getStatusIcon = (status: string) => {
+    switch(status) {
+      case 'operational':
+        return <span className="text-green-500">✅</span>;
+      case 'maintenance':
+        return <span className="text-red-500 animate-pulse">🛑</span>;
+      case 'partial':
+        return <span className="text-yellow-500 animate-pulse">⚠️</span>;
+      default:
+        return null;
     }
   };
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'operational': return <CheckCircle className="w-4 h-4" />;
-      case 'maintenance': return <XCircle className="w-4 h-4" />;
-      case 'partial': return <AlertCircle className="w-4 h-4" />;
-      default: return <Clock className="w-4 h-4" />;
-    }
+  const getActivityForSlot = (day: string, time: string) => {
+    return scheduleData.find(activity => activity.day === day && activity.time === time);
   };
 
   return (
-    <MainLayout pageTitle="Atividades ao Vivo" pageSubtitle="Monitoramento em tempo real da academia">
-      {/* Header with retro gym image */}
+    <MainLayout pageTitle="Atividades Ao Vivo" pageSubtitle="Monitoramento de atividades da academia">
+      {/* Header with vintage gym image */}
       <div className="relative h-64 mb-8 rounded-xl overflow-hidden">
         <div 
           className="absolute inset-0 bg-cover bg-center"
           style={{
-            backgroundImage: `url('https://images.unsplash.com/photo-1517838277536-f5f99be501cd?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80')`,
-            filter: 'contrast(120%) hue-rotate(-10deg)'
+            backgroundImage: `url('https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2134&q=80')`,
+            filter: 'blur(0.5px) hue-rotate(-10deg)'
           }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+        <div 
+          className="absolute inset-0"
+          style={{
+            backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 0, 0, 0.1) 2px, rgba(0, 0, 0, 0.1) 4px)'
+          }}
+        />
         <div className="absolute bottom-6 left-6 text-white">
           <motion.h1 
             className="text-4xl font-bold mb-2"
             style={{ 
-              fontFamily: 'Monaco, "Lucida Console", monospace',
-              textShadow: '2px 2px 0px #000000',
-              color: '#00BFFF'
+              fontFamily: 'monospace',
+              textShadow: '2px 2px 0px #000000, 3px 3px 0px #0000FF'
             }}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -120,255 +159,253 @@ const Atividades: React.FC = () => {
           >
             ATIVIDADES AO VIVO
           </motion.h1>
-          <motion.p 
-            className="text-xl font-bold"
-            style={{ 
-              fontFamily: 'Monaco, "Lucida Console", monospace',
-              color: '#32CD32'
-            }}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-          >
-            Sistema Online • {new Date().toLocaleTimeString()}
-          </motion.p>
         </div>
       </div>
 
-      {/* Real-time Statistics */}
-      <div className="grid grid-cols-3 gap-8 mb-8 p-6 bg-black rounded-xl border border-green-400">
+      {/* Stats Section - LED Display */}
+      <div 
+        className="grid grid-cols-3 gap-8 mb-8 p-6 bg-black rounded-xl"
+        style={{ fontFamily: 'monospace' }}
+      >
         <motion.div 
           className="text-center"
-          style={{ fontFamily: 'Monaco, "Lucida Console", monospace' }}
-          whileHover={{ scale: 1.05 }}
+          animate={{ scale: [1, 1.02, 1] }}
+          transition={{ duration: 2, repeat: Infinity }}
         >
-          <motion.div 
-            className="text-4xl font-bold mb-2"
-            style={{ color: '#FF0000' }}
-            animate={{ scale: [1, 1.1, 1] }}
-            transition={{ duration: 2, repeat: Infinity }}
-          >
-            {activeClasses}
-          </motion.div>
-          <div className="text-sm text-green-400 uppercase tracking-wide">Aulas em Andamento</div>
-          <div className="text-xs text-gray-400 mt-1">
-            {scheduleData.filter(s => s.status === 'active').map(s => `${s.activity} (${s.room})`).join(' | ')}
+          <div className="text-2xl font-bold text-green-500 mb-1">
+            Aulas em Andamento: {activeClasses}
+          </div>
+          <div className="text-sm text-green-400">
+            Spinning (Sala B) | 15 alunos<br />
+            Yoga (Sala A) | 8 alunos<br />
+            Funcional (Sala C) | 12 alunos
           </div>
         </motion.div>
 
-        <motion.div 
-          className="text-center border-l border-r border-green-400"
-          style={{ fontFamily: 'Monaco, "Lucida Console", monospace' }}
-          whileHover={{ scale: 1.05 }}
-        >
-          <div className="text-4xl font-bold text-green-400 mb-2">{totalCheckIns}</div>
-          <div className="text-sm text-green-400 uppercase tracking-wide">Check-ins Hoje</div>
-          <div className="flex justify-center items-center mt-2">
-            <div className="w-32 h-2 bg-gray-700 rounded-full overflow-hidden">
-              <motion.div 
-                className="h-full bg-green-400"
-                initial={{ width: '0%' }}
-                animate={{ width: '75%' }}
-                transition={{ duration: 1 }}
-              />
+        <motion.div className="text-center flex flex-col items-center justify-center">
+          <div className="text-2xl font-bold text-green-500 mb-1">
+            Equipamentos Livres: {freeEquipment}/25
+          </div>
+          <div className="w-full h-4 bg-gray-800 rounded-full overflow-hidden">
+            <motion.div 
+              className="h-full bg-gradient-to-r from-gray-500 to-gray-300"
+              style={{ width: `${(freeEquipment/25) * 100}%` }}
+              initial={{ width: 0 }}
+              animate={{ width: `${(freeEquipment/25) * 100}%` }}
+              transition={{ duration: 0.5 }}
+            />
+          </div>
+          <div className="text-sm text-green-400 mt-2">
+            🏋️ 5/10 | 🤸 8/10 | 🚶‍♂️ 2/5
+          </div>
+        </motion.div>
+
+        <motion.div className="text-center">
+          <div className="text-2xl font-bold text-green-500 mb-1">Check-ins Última Hora</div>
+          <div className="h-20">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={checkIns}>
+                <Line 
+                  type="monotone" 
+                  dataKey="value" 
+                  stroke="#32CD32" 
+                  strokeWidth={2}
+                  dot={{ fill: '#32CD32' }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </motion.div>
+      </div>
+
+      {/* Schedule Grid */}
+      <div 
+        className="mb-8 bg-gray-100 p-4 rounded-xl border-2 border-black"
+        style={{ fontFamily: 'monospace' }}
+      >
+        <h2 className="text-xl font-bold mb-4">Grade de Horários</h2>
+        <div className="grid grid-cols-7 gap-2">
+          {daysOfWeek.map(day => (
+            <div key={day} className="font-bold text-center bg-black text-white p-2">
+              {day}
             </div>
-          </div>
-        </motion.div>
+          ))}
 
-        <motion.div 
-          className="text-center"
-          style={{ fontFamily: 'Monaco, "Lucida Console", monospace' }}
-          whileHover={{ scale: 1.05 }}
-        >
-          <div className="text-4xl font-bold text-yellow-400 mb-2">
-            {equipmentStatus.filter(e => e.status === 'operational').length}/{equipmentStatus.length}
-          </div>
-          <div className="text-sm text-green-400 uppercase tracking-wide">Equipamentos OK</div>
-          <div className="flex justify-center space-x-2 mt-2">
-            {equipmentStatus.map((equipment, index) => (
-              <div key={index} className={`w-3 h-3 rounded-full ${
-                equipment.status === 'operational' ? 'bg-green-400' : 
-                equipment.status === 'maintenance' ? 'bg-red-400' : 'bg-yellow-400'
-              }`} />
-            ))}
-          </div>
-        </motion.div>
-      </div>
-
-      {/* Interactive Schedule Grid */}
-      <div className="mb-8">
-        <h3 className="text-xl font-bold mb-4 text-green-400" style={{ fontFamily: 'Monaco, "Lucida Console", monospace' }}>
-          GRADE DE HORÁRIOS INTERATIVA
-        </h3>
-        <div className="bg-black p-6 rounded-xl border border-blue-500">
-          <div className="grid grid-cols-8 gap-2" style={{ fontFamily: 'Monaco, "Lucida Console", monospace' }}>
-            <div className="text-center font-bold text-blue-500 p-2">HORÁRIO</div>
-            {['SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SÁB', 'DOM'].map(day => (
-              <div key={day} className="text-center font-bold text-blue-500 p-2">{day}</div>
-            ))}
-            
-            {['06:00', '08:00', '10:00', '18:00', '19:00', '20:00'].map(time => (
-              <React.Fragment key={time}>
-                <div className="text-green-400 p-2 text-center font-bold">{time}</div>
-                {Array(7).fill(null).map((_, dayIndex) => {
-                  const activity = scheduleData.find(s => s.time === time);
-                  return (
-                    <motion.div
-                      key={dayIndex}
-                      className={`p-2 text-center text-xs border border-gray-600 cursor-pointer ${
-                        activity ? 'bg-purple-900 border-purple-500' : 'bg-gray-800'
-                      }`}
-                      whileHover={{ scale: 1.05, backgroundColor: activity ? '#4C1D95' : '#374151' }}
-                      onClick={() => handleAction('editar-aula')}
-                    >
-                      {activity && dayIndex === 0 ? (
-                        <>
-                          <div className="font-bold text-purple-300">{activity.activity}</div>
-                          <div className="text-gray-400">{activity.participants} alunos</div>
-                        </>
-                      ) : null}
-                    </motion.div>
-                  );
-                })}
-              </React.Fragment>
-            ))}
-          </div>
+          {daysOfWeek.map(day => (
+            timeSlots.map(time => {
+              const activity = getActivityForSlot(day, time);
+              return (
+                <motion.div 
+                  key={`${day}-${time}`} 
+                  className={`p-2 h-24 border text-xs ${activity ? 'border-2' : 'border-gray-300 bg-gray-200'}`}
+                  style={{
+                    backgroundColor: activity ? activity.color : '',
+                    borderColor: activity ? `${activity.color}` : '',
+                    color: activity ? 'white' : 'black',
+                    cursor: activity ? 'pointer' : 'default'
+                  }}
+                  whileHover={activity ? { scale: 1.05, boxShadow: '0 0 8px rgba(0,0,0,0.3)' } : {}}
+                  onClick={() => activity && handleAction('edit')}
+                >
+                  <div className="flex flex-col h-full justify-between">
+                    <span>{time}</span>
+                    {activity && (
+                      <>
+                        <span className="font-bold">{activity.name}</span>
+                        <span>{activity.room} - {activity.duration}min</span>
+                      </>
+                    )}
+                  </div>
+                </motion.div>
+              );
+            })
+          ))}
         </div>
       </div>
 
-      {/* Control Panel Actions */}
-      <div className="grid grid-cols-6 gap-4 mb-8">
-        {[
-          { icon: Play, label: 'Iniciar Aula', action: 'iniciar-aula', color: 'bg-green-500' },
-          { icon: Stop, label: 'Encerrar Tudo', action: 'encerrar-tudo', color: 'bg-red-500' },
-          { icon: AlertTriangle, label: 'Emergência', action: 'emergencia', color: 'bg-yellow-500' },
-          { icon: Download, label: 'Exportar Dados', action: 'exportar-dados', color: 'bg-blue-500' },
-          { icon: History, label: 'Histórico', action: 'historico', color: 'bg-purple-500' },
-          { icon: Plus, label: 'Nova Atividade', action: 'nova-atividade', color: 'bg-orange-500' }
-        ].map((button, index) => {
-          const Icon = button.icon;
-          return (
-            <motion.div
-              key={button.action}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-            >
-              <Button
-                onClick={() => handleAction(button.action)}
-                className={`w-full h-20 ${button.color} text-white hover:opacity-80 transition-all duration-300 border-2 border-black`}
-                style={{
-                  fontFamily: 'Monaco, "Lucida Console", monospace',
-                  boxShadow: '4px 4px 0px #000000'
-                }}
-                onMouseDown={(e) => {
-                  e.currentTarget.style.transform = 'translateY(2px)';
-                  e.currentTarget.style.boxShadow = '2px 2px 0px #000000';
-                }}
-                onMouseUp={(e) => {
-                  e.currentTarget.style.transform = 'none';
-                  e.currentTarget.style.boxShadow = '4px 4px 0px #000000';
-                }}
-              >
-                <div className="flex flex-col items-center gap-1">
-                  <Icon size={20} />
-                  <span className="text-xs leading-tight">{button.label}</span>
-                </div>
-              </Button>
-            </motion.div>
-          );
-        })}
-      </div>
-
-      {/* Equipment Monitoring & Recent Activity */}
+      {/* Action Buttons */}
       <div className="grid grid-cols-2 gap-8 mb-8">
-        {/* Equipment Status */}
-        <motion.div
-          className="bg-black p-6 rounded-xl border border-silver-400"
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.6 }}
-        >
-          <h3 className="text-lg font-bold mb-4 text-green-400" style={{ fontFamily: 'Monaco, "Lucida Console", monospace' }}>
-            MONITORAMENTO DE EQUIPAMENTOS
-          </h3>
-          <div className="space-y-3">
-            {equipmentStatus.map((equipment, index) => (
-              <motion.div
-                key={equipment.name}
-                className="flex items-center justify-between p-3 bg-gray-900 border border-gray-700"
-                style={{ fontFamily: 'Monaco, "Lucida Console", monospace' }}
-                whileHover={{ backgroundColor: '#1F2937' }}
-              >
-                <div className="flex items-center space-x-3">
-                  <div className={getStatusColor(equipment.status)}>
-                    {getStatusIcon(equipment.status)}
-                  </div>
-                  <span className="text-green-400 text-sm">{equipment.name}</span>
-                </div>
-                <div className="text-right">
-                  <div className={`text-sm ${getStatusColor(equipment.status)}`}>
-                    {equipment.status.toUpperCase()}
-                  </div>
-                  <div className="text-xs text-gray-400">{equipment.usage}</div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </motion.div>
+        <div className="space-y-4">
+          <h2 className="text-xl font-bold mb-4" style={{ fontFamily: 'monospace' }}>Controle de Aulas</h2>
+          <div className="grid grid-cols-3 gap-4">
+            <motion.button
+              className="bg-black text-green-500 border-2 border-green-500 p-4 rounded-md font-mono flex items-center justify-center gap-2"
+              whileHover={{ scale: 1.05, backgroundColor: '#003300' }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => handleAction('start')}
+            >
+              <Play size={20} />
+              <span>Iniciar Aula</span>
+            </motion.button>
 
-        {/* Recent Check-ins */}
-        <motion.div
-          className="bg-black p-6 rounded-xl border border-silver-400"
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.6 }}
-        >
-          <h3 className="text-lg font-bold mb-4 text-green-400" style={{ fontFamily: 'Monaco, "Lucida Console", monospace' }}>
-            CHECK-INS RECENTES
-          </h3>
-          <div className="space-y-3">
-            {recentCheckIns.map((checkIn, index) => (
-              <motion.div
-                key={index}
-                className="flex items-center justify-between p-3 bg-gray-900 border border-gray-700"
-                style={{ fontFamily: 'Monaco, "Lucida Console", monospace' }}
-                initial={{ opacity: 0, x: 50 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: index * 0.1 }}
-              >
-                <div>
-                  <div className="text-green-400 text-sm font-bold">{checkIn.name}</div>
-                  <div className="text-xs text-gray-400">{checkIn.activity}</div>
-                </div>
-                <div className="text-yellow-400 text-sm">{checkIn.time}</div>
-              </motion.div>
-            ))}
+            <motion.button
+              className="bg-black text-red-500 border-2 border-red-500 p-4 rounded-md font-mono flex items-center justify-center gap-2"
+              whileHover={{ scale: 1.05, backgroundColor: '#330000' }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => handleAction('stop')}
+            >
+              <Square size={20} />
+              <span>Encerrar Tudo</span>
+            </motion.button>
+
+            <motion.button
+              className="bg-black text-yellow-500 border-2 border-yellow-500 p-4 rounded-md font-mono flex items-center justify-center gap-2 animate-pulse"
+              whileHover={{ scale: 1.05, backgroundColor: '#332200' }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => handleAction('emergency')}
+            >
+              <Bell size={20} />
+              <span>Emergência</span>
+            </motion.button>
           </div>
-        </motion.div>
+        </div>
+
+        <div className="space-y-4">
+          <h2 className="text-xl font-bold mb-4" style={{ fontFamily: 'monospace' }}>Gestão</h2>
+          <div className="grid grid-cols-3 gap-4">
+            <motion.button
+              className="bg-black text-blue-500 border-2 border-blue-500 p-4 rounded-md font-mono flex items-center justify-center gap-2"
+              whileHover={{ scale: 1.05, backgroundColor: '#000033' }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => handleAction('export')}
+            >
+              <DollarSign size={20} />
+              <span>Exportar Dados</span>
+            </motion.button>
+
+            <motion.button
+              className="bg-black text-purple-500 border-2 border-purple-500 p-4 rounded-md font-mono flex items-center justify-center gap-2"
+              whileHover={{ scale: 1.05, backgroundColor: '#220033' }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => handleAction('history')}
+            >
+              <History size={20} />
+              <span>Histórico 24h</span>
+            </motion.button>
+
+            <motion.button
+              className="bg-black text-green-300 border-2 border-green-300 p-4 rounded-md font-mono flex items-center justify-center gap-2"
+              whileHover={{ scale: 1.05, backgroundColor: '#003322' }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => handleAction('new')}
+            >
+              <Plus size={20} />
+              <span>Nova Atividade</span>
+            </motion.button>
+          </div>
+        </div>
       </div>
 
-      {/* System Status Footer */}
-      <div className="bg-gray-800 p-4 rounded-xl border border-gray-600">
-        <div className="flex justify-between items-center" style={{ fontFamily: 'Monaco, "Lucida Console", monospace' }}>
-          <div className="flex space-x-6 text-sm">
-            <div className="flex items-center space-x-2">
-              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-              <span className="text-green-400">Sistema Sincronizado</span>
-            </div>
-            <div className="text-gray-400">
-              🕒 Última Sync: {new Date().toLocaleTimeString()}
-            </div>
-            <div className="text-gray-400">
-              📶 45 Dispositivos Conectados
-            </div>
+      {/* Equipment Status */}
+      <div 
+        className="mb-8 bg-black p-6 rounded-xl text-green-500"
+        style={{ fontFamily: 'monospace' }}
+      >
+        <h2 className="text-xl font-bold mb-4 border-b border-green-500 pb-2">Monitoramento de Equipamentos</h2>
+        <div className="grid grid-cols-1 gap-2 max-h-60 overflow-auto pr-2 custom-scrollbar">
+          {equipmentStatus.map((equip, index) => (
+            <motion.div 
+              key={equip.name}
+              className="flex justify-between items-center p-2 border-l-4"
+              style={{ 
+                borderColor: 
+                  equip.status === 'operational' ? '#00FF00' : 
+                  equip.status === 'maintenance' ? '#FF0000' : 
+                  '#FFFF00'
+              }}
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: index * 0.1 }}
+            >
+              <div className="flex items-center gap-2">
+                {getStatusIcon(equip.status)}
+                <span>{equip.name}</span>
+              </div>
+              <div>
+                {equip.status === 'maintenance' && (
+                  <span className="text-red-500">Manutenção: {equip.timeRemaining}</span>
+                )}
+                {equip.status === 'partial' && (
+                  <span className="text-yellow-500">{equip.issue}</span>
+                )}
+                {equip.status === 'operational' && (
+                  <span className="text-green-500">Operacional</span>
+                )}
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+
+      {/* Footer System Status */}
+      <div 
+        className="bg-gray-100 p-4 rounded-xl border-t-2 border-gray-300 flex justify-between items-center"
+        style={{ fontFamily: 'monospace' }}
+      >
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-1">
+            <span className="text-gray-600">🕒</span>
+            <span>Última Sincronização: 15s</span>
           </div>
-          <div className="flex items-center space-x-4 text-sm text-gray-400">
-            <span>🔋 Bateria: 78%</span>
-            <div className="w-16 h-2 bg-gray-700 rounded-full overflow-hidden">
-              <div className="w-3/4 h-full bg-green-400" />
-            </div>
+          <div className="flex items-center gap-1">
+            <span className="text-gray-600">📶</span>
+            <span>45 Dispositivos Conectados</span>
           </div>
+        </div>
+        <div className="flex items-center gap-1">
+          <span className="text-gray-600">🔋</span>
+          <span>Bateria:</span>
+          <div className="w-24 h-4 bg-gray-300 rounded overflow-hidden">
+            <motion.div 
+              className="h-full bg-green-500"
+              style={{ width: '78%' }}
+              animate={{
+                width: ['78%', '75%', '78%']
+              }}
+              transition={{ duration: 4, repeat: Infinity }}
+            />
+          </div>
+          <span>78%</span>
         </div>
       </div>
     </MainLayout>
