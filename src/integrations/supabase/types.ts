@@ -82,6 +82,134 @@ export type Database = {
           },
         ]
       }
+      churn_actions: {
+        Row: {
+          action_description: string | null
+          action_type: string
+          assigned_to: string | null
+          completed_at: string | null
+          created_at: string | null
+          id: string
+          prediction_id: string | null
+          result: string | null
+          status: string
+          user_id: string | null
+        }
+        Insert: {
+          action_description?: string | null
+          action_type: string
+          assigned_to?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          prediction_id?: string | null
+          result?: string | null
+          status?: string
+          user_id?: string | null
+        }
+        Update: {
+          action_description?: string | null
+          action_type?: string
+          assigned_to?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          prediction_id?: string | null
+          result?: string | null
+          status?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "churn_actions_prediction_id_fkey"
+            columns: ["prediction_id"]
+            isOneToOne: false
+            referencedRelation: "churn_predictions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "churn_actions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      churn_model_metrics: {
+        Row: {
+          accuracy: number
+          created_at: string | null
+          f1_score: number
+          feature_importance: Json | null
+          id: string
+          precision: number
+          recall: number
+          training_date: string | null
+        }
+        Insert: {
+          accuracy: number
+          created_at?: string | null
+          f1_score: number
+          feature_importance?: Json | null
+          id?: string
+          precision: number
+          recall: number
+          training_date?: string | null
+        }
+        Update: {
+          accuracy?: number
+          created_at?: string | null
+          f1_score?: number
+          feature_importance?: Json | null
+          id?: string
+          precision?: number
+          recall?: number
+          training_date?: string | null
+        }
+        Relationships: []
+      }
+      churn_predictions: {
+        Row: {
+          churn_probability: number
+          confidence_score: number
+          created_at: string | null
+          factors: Json | null
+          id: string
+          prediction_date: string | null
+          risk_level: string
+          user_id: string | null
+        }
+        Insert: {
+          churn_probability: number
+          confidence_score: number
+          created_at?: string | null
+          factors?: Json | null
+          id?: string
+          prediction_date?: string | null
+          risk_level: string
+          user_id?: string | null
+        }
+        Update: {
+          churn_probability?: number
+          confidence_score?: number
+          created_at?: string | null
+          factors?: Json | null
+          id?: string
+          prediction_date?: string | null
+          risk_level?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "churn_predictions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       content_engagement: {
         Row: {
           completed: boolean | null
@@ -351,6 +479,7 @@ export type Database = {
           gender: string | null
           id: string
           name: string
+          role: string
         }
         Insert: {
           age?: number | null
@@ -359,6 +488,7 @@ export type Database = {
           gender?: string | null
           id?: string
           name: string
+          role?: string
         }
         Update: {
           age?: number | null
@@ -367,6 +497,7 @@ export type Database = {
           gender?: string | null
           id?: string
           name?: string
+          role?: string
         }
         Relationships: []
       }

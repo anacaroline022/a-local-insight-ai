@@ -1,340 +1,428 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import MainLayout from '@/components/layout/MainLayout';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Switch } from '@/components/ui/switch';
+import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  Puzzle, 
-  CheckCircle2, 
-  AlertTriangle, 
-  XCircle, 
-  Plus, 
-  Zap, 
-  RefreshCw,
   Settings,
-  Copy,
-  ExternalLink,
-  FileText,
-  Activity
+  Cloud,
+  RefreshCw,
+  Lock,
+  Calendar,
+  Users,
+  CreditCard,
+  Activity,
+  Plus,
+  CheckCircle2,
+  AlertTriangle,
+  XCircle,
+  BarChart3,
+  Wifi,
+  WifiOff
 } from 'lucide-react';
 
-interface APIConnection {
+interface APIStatus {
   id: string;
   name: string;
-  type: 'payment' | 'calendar' | 'communication' | 'crm';
-  status: 'connected' | 'warning' | 'disconnected';
+  status: 'active' | 'unstable' | 'offline';
   lastSync: string;
-  monthlyUsage: number;
+  progress: number;
   description: string;
-  icon: string;
 }
 
-const mockConnections: APIConnection[] = [
-  {
-    id: '1',
-    name: 'PagBank',
-    type: 'payment',
-    status: 'connected',
-    lastSync: '2 min atrás',
-    monthlyUsage: 142,
-    description: 'Pagamentos',
-    icon: '💳'
-  },
-  {
-    id: '2',
-    name: 'Google Calendar',
-    type: 'calendar',
-    status: 'warning',
-    lastSync: '30 min atrás',
-    monthlyUsage: 89,
-    description: 'Agendamento',
-    icon: '📅'
-  },
-  {
-    id: '3',
-    name: 'WhatsApp Business',
-    type: 'communication',
-    status: 'disconnected',
-    lastSync: 'Nunca',
-    monthlyUsage: 0,
-    description: 'Comunicação',
-    icon: '📱'
-  }
-];
+interface EquipmentLoad {
+  name: string;
+  usage: number;
+  color: string;
+}
 
 const IntegracaoAPIs = () => {
   const { toast } = useToast();
-  const [connections, setConnections] = useState<APIConnection[]>(mockConnections);
-  const [selectedConnection, setSelectedConnection] = useState<APIConnection | null>(null);
-  const [isConfiguring, setIsConfiguring] = useState(false);
-  const [apiKey, setApiKey] = useState('');
-  const [callbackUrl] = useState('https://academia.app/webhook/callback');
+  const [apis, setApis] = useState<APIStatus[]>([
+    {
+      id: 'members',
+      name: 'SAP FitnessPro',
+      status: 'active',
+      lastSync: '98% concluída',
+      progress: 98,
+      description: 'Sincronização de Membros'
+    },
+    {
+      id: 'schedule',
+      name: 'Google Calendar',
+      status: 'active',
+      lastSync: '2 min atrás',
+      progress: 100,
+      description: 'Gestão de Horários'
+    },
+    {
+      id: 'payments',
+      name: 'PagSeguro',
+      status: 'active',
+      lastSync: 'R$ 2.340,00 (5 mins atrás)',
+      progress: 100,
+      description: 'Gateway Financeiro'
+    }
+  ]);
+
+  const [equipmentLoad, setEquipmentLoad] = useState<EquipmentLoad[]>([
+    { name: 'Esteiras', usage: 70, color: 'from-green-500 to-orange-500' },
+    { name: 'Halteres', usage: 30, color: 'from-green-500 to-green-400' },
+    { name: 'Bicicletas', usage: 90, color: 'from-orange-500 to-red-500' }
+  ]);
+
+  const [autoCharge, setAutoCharge] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [showTechnicalDetails, setShowTechnicalDetails] = useState(false);
+
+  // Simulação de dados em tempo real
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setEquipmentLoad(prev => prev.map(item => ({
+        ...item,
+        usage: Math.max(10, Math.min(95, item.usage + (Math.random() - 0.5) * 10))
+      })));
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'connected': return 'text-green-500';
-      case 'warning': return 'text-yellow-500';
-      case 'disconnected': return 'text-red-500';
+      case 'active': return 'text-green-500';
+      case 'unstable': return 'text-orange-500';
+      case 'offline': return 'text-red-500';
       default: return 'text-gray-500';
     }
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'connected': return CheckCircle2;
-      case 'warning': return AlertTriangle;
-      case 'disconnected': return XCircle;
+      case 'active': return CheckCircle2;
+      case 'unstable': return AlertTriangle;
+      case 'offline': return XCircle;
       default: return XCircle;
     }
   };
 
-  const handleTestConnection = (connection: APIConnection) => {
+  const handleForceSync = (apiId: string) => {
+    setIsRefreshing(true);
+    
     toast({
-      title: "Testando Conexão",
-      description: `Verificando ${connection.name}...`
+      description: "Iniciando sincronização forçada..."
     });
 
-    // Simulate test
     setTimeout(() => {
+      setApis(prev => prev.map(api => 
+        api.id === apiId 
+          ? { ...api, progress: 100, lastSync: 'agora' }
+          : api
+      ));
+      setIsRefreshing(false);
+      
       toast({
-        title: "Teste Concluído",
-        description: `${connection.name} está respondendo corretamente`,
+        description: "Sincronização concluída com sucesso",
       });
     }, 2000);
   };
 
-  const handleConnect = (connection: APIConnection) => {
-    setSelectedConnection(connection);
-    setIsConfiguring(true);
-  };
-
-  const handleSaveConfiguration = () => {
-    if (!apiKey.trim()) {
-      toast({
-        title: "Erro",
-        description: "Por favor, insira uma API Key válida",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    toast({
-      title: "Configuração Salva",
-      description: `${selectedConnection?.name} foi configurado com sucesso`
-    });
-
-    // Update connection status
-    if (selectedConnection) {
-      setConnections(prev => prev.map(conn => 
-        conn.id === selectedConnection.id 
-          ? { ...conn, status: 'connected' as const, lastSync: 'agora' }
-          : conn
-      ));
-    }
-
-    setIsConfiguring(false);
-    setSelectedConnection(null);
-    setApiKey('');
-  };
-
-  const handleSyncAll = () => {
-    toast({
-      title: "Sincronizando",
-      description: "Atualizando todas as conexões..."
-    });
-
+  const handleRefreshEquipment = () => {
+    setIsRefreshing(true);
+    
     setTimeout(() => {
-      setConnections(prev => prev.map(conn => ({
-        ...conn,
-        lastSync: 'agora'
+      setEquipmentLoad(prev => prev.map(item => ({
+        ...item,
+        usage: Math.floor(Math.random() * 90) + 10
       })));
-      
-      toast({
-        title: "Sincronização Completa",
-        description: "Todas as conexões foram atualizadas"
-      });
-    }, 3000);
+      setIsRefreshing(false);
+    }, 1000);
   };
 
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
+  const handleNewClass = () => {
     toast({
-      description: "URL copiada para a área de transferência"
+      title: "Abrindo Integração",
+      description: "Conectando com Google Calendar..."
+    });
+  };
+
+  const handleConnectNewSystem = () => {
+    toast({
+      title: "Sistemas Disponíveis",
+      description: "MyFitnessPal, Apple Health, Strava, Fitbit"
+    });
+  };
+
+  const handleDiagnostic = () => {
+    toast({
+      title: "Diagnóstico Executado",
+      description: "Todas as APIs estão funcionando corretamente ✓"
     });
   };
 
   return (
     <MainLayout
-      pageTitle="Conectores"
-      pageSubtitle="Integração com APIs e serviços externos"
-      headerImage="https://images.unsplash.com/photo-1461749280684-dccba630e2f6?q=80&w=2000&auto=format&fit=crop"
+      pageTitle="Controle Total. Simplicidade Radical."
+      pageSubtitle="Integração completa com todos os sistemas da academia"
+      headerImage="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?q=80&w=2000&auto=format&fit=crop"
     >
-      <div className="space-y-6">
-        {/* Header Actions */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <div className={`h-2 w-2 rounded-full bg-green-500 animate-pulse`}></div>
-            <span className="text-sm text-muted-foreground">Sincronizado há 2min</span>
-          </div>
-          
-          <div className="flex space-x-2">
-            <Button variant="outline" onClick={handleSyncAll}>
-              <RefreshCw className="h-4 w-4 mr-2" />
-              Sincronizar Tudo
-            </Button>
-            <Button onClick={() => setIsConfiguring(true)}>
-              <Plus className="h-4 w-4 mr-2" />
-              Nova Integração
-            </Button>
-          </div>
+      <div className="space-y-12 max-w-6xl mx-auto">
+        
+        {/* Botão de Configurações Prioritárias */}
+        <div className="flex justify-end mb-8">
+          <Button 
+            variant="outline" 
+            className="bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20 transition-all duration-300"
+            onClick={() => toast({ description: "Configurações prioritárias abertas" })}
+          >
+            <Settings className="h-4 w-4 mr-2" />
+            Configurar Conexões Prioritárias
+          </Button>
         </div>
 
-        {/* Connections Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {connections.map((connection) => {
-            const StatusIcon = getStatusIcon(connection.status);
+        {/* Seção 1: API de Membros */}
+        <motion.div 
+          className="space-y-6"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+        >
+          <div className="border-b border-gray-200 pb-8">
+            <h2 className="text-2xl font-light text-gray-900 mb-6">Sincronização de Membros</h2>
             
-            return (
-              <motion.div
-                key={connection.id}
-                className="bg-background/50 backdrop-blur-sm border border-border rounded-lg p-6 hover:bg-background/70 transition-all duration-200"
-                whileHover={{ scale: 1.02, y: -2 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex items-center space-x-3">
-                    <div className="text-2xl">{connection.icon}</div>
-                    <div>
-                      <h3 className="font-medium">{connection.name}</h3>
-                      <p className="text-sm text-muted-foreground">{connection.description}</p>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <div className="flex items-center space-x-3 mb-3">
+                    <span className="text-lg">Última sincronização: {apis[0].progress}% concluída</span>
+                  </div>
+                  <Progress 
+                    value={apis[0].progress} 
+                    className="h-2"
+                    indicatorClassName="bg-gradient-to-r from-blue-500 to-blue-600"
+                  />
+                </div>
+                
+                <motion.div
+                  whileTap={{ scale: 0.95 }}
+                  whileHover={{ scale: 1.05 }}
+                >
+                  <Button
+                    onClick={() => handleForceSync('members')}
+                    disabled={isRefreshing}
+                    className="ml-8 bg-blue-600 hover:bg-blue-700 text-white rounded-full h-12 w-12 p-0"
+                  >
+                    <motion.div
+                      animate={isRefreshing ? { rotate: 360 } : {}}
+                      transition={{ duration: 1, repeat: isRefreshing ? Infinity : 0 }}
+                    >
+                      <Cloud className="h-5 w-5" />
+                    </motion.div>
+                  </Button>
+                </motion.div>
+              </div>
+              
+              <p className="text-sm text-gray-600">
+                Conectado ao {apis[0].name} | Status: <span className={getStatusColor(apis[0].status)}>Ativo</span>
+              </p>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Seção 2: API de Agendamento */}
+        <motion.div 
+          className="space-y-6"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+        >
+          <div className="border-b border-gray-200 pb-8">
+            <h2 className="text-2xl font-light text-gray-900 mb-6">Gestão de Horários</h2>
+            
+            <div className="flex items-center justify-between">
+              <div className="grid grid-cols-7 gap-2 flex-1">
+                {['SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SAB', 'DOM'].map((day, index) => (
+                  <div key={day} className="text-center">
+                    <div className="text-xs text-gray-500 mb-2">{day}</div>
+                    <div className="space-y-1">
+                      {[1, 2, 3].map(slot => (
+                        <div 
+                          key={slot}
+                          className={`h-3 rounded ${Math.random() > 0.5 ? 'bg-blue-500' : 'bg-gray-200'}`}
+                        />
+                      ))}
                     </div>
                   </div>
-                  <StatusIcon className={`h-5 w-5 ${getStatusColor(connection.status)}`} />
-                </div>
-
-                <div className="space-y-2 mb-4">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Última sync:</span>
-                    <span>{connection.lastSync}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Uso mensal:</span>
-                    <span>{connection.monthlyUsage} {connection.type === 'payment' ? 'transações' : 'eventos'}</span>
-                  </div>
-                </div>
-
-                <div className="flex space-x-2">
-                  {connection.status === 'connected' ? (
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      className="flex-1"
-                      onClick={() => handleTestConnection(connection)}
-                    >
-                      <Zap className="h-4 w-4 mr-1" />
-                      Testar
-                    </Button>
-                  ) : (
-                    <Button 
-                      size="sm" 
-                      className="flex-1"
-                      onClick={() => handleConnect(connection)}
-                    >
-                      {connection.status === 'warning' ? 'Renovar' : 'Conectar'}
-                    </Button>
-                  )}
-                  <Button variant="outline" size="sm">
-                    <Settings className="h-4 w-4" />
-                  </Button>
-                </div>
-              </motion.div>
-            );
-          })}
-        </div>
-
-        {/* Configuration Panel */}
-        {isConfiguring && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-background/50 backdrop-blur-sm border border-border rounded-lg p-6"
-          >
-            <h3 className="text-lg font-medium mb-4">
-              {selectedConnection ? `Configurar ${selectedConnection.name}` : 'Nova Integração'}
-            </h3>
-
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium mb-2">1️⃣ URL de Callback</label>
-                <div className="flex space-x-2">
-                  <Input value={callbackUrl} readOnly className="font-mono text-sm" />
-                  <Button 
-                    variant="outline" 
-                    size="icon"
-                    onClick={() => copyToClipboard(callbackUrl)}
-                  >
-                    <Copy className="h-4 w-4" />
-                  </Button>
-                </div>
+                ))}
               </div>
+              
+              <motion.div
+                whileTap={{ scale: 0.95 }}
+                whileHover={{ scale: 1.05 }}
+                className="ml-8"
+              >
+                <Button
+                  onClick={handleNewClass}
+                  className="bg-green-600 hover:bg-green-700 text-white rounded-full h-12 px-6"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Nova Classe
+                </Button>
+              </motion.div>
+            </div>
+            
+            <p className="text-sm text-gray-600 mt-4">
+              Sincronizando com 3 instrutores externos
+            </p>
+          </div>
+        </motion.div>
 
-              <div>
-                <label className="block text-sm font-medium mb-2">2️⃣ API Key</label>
-                <Input
-                  type="password"
-                  placeholder="Insira sua API Key..."
-                  value={apiKey}
-                  onChange={(e) => setApiKey(e.target.value)}
+        {/* Seção 3: API de Pagamentos */}
+        <motion.div 
+          className="space-y-6"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+          onDoubleClick={() => setShowTechnicalDetails(!showTechnicalDetails)}
+        >
+          <div className="border-b border-gray-200 pb-8">
+            <h2 className="text-2xl font-light text-gray-900 mb-6">Gateway Financeiro</h2>
+            
+            <div className="space-y-4">
+              <div className="flex items-center space-x-3">
+                <Lock className="h-5 w-5 text-green-600" />
+                <span className="text-lg">Conexão segura com PagSeguro</span>
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <span className="text-lg">Cobrança Automática</span>
+                <Switch 
+                  checked={autoCharge}
+                  onCheckedChange={setAutoCharge}
                 />
               </div>
-
-              <div className="flex space-x-2">
-                <Button onClick={handleSaveConfiguration}>
-                  <CheckCircle2 className="h-4 w-4 mr-2" />
-                  Salvar Configuração
-                </Button>
-                <Button 
-                  variant="outline"
-                  onClick={() => {
-                    setIsConfiguring(false);
-                    setSelectedConnection(null);
-                    setApiKey('');
-                  }}
-                >
-                  Cancelar
-                </Button>
-              </div>
+              
+              <p className="text-sm text-gray-600">
+                Última transação: R$ 2.340,00 (5 mins atrás)
+              </p>
             </div>
-          </motion.div>
-        )}
 
-        {/* Quick Actions */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <Button variant="outline" className="h-20 flex flex-col items-center justify-center">
-            <FileText className="h-6 w-6 mb-2" />
-            <span className="text-sm">Logs de Erro</span>
-          </Button>
-          <Button variant="outline" className="h-20 flex flex-col items-center justify-center">
-            <ExternalLink className="h-6 w-6 mb-2" />
-            <span className="text-sm">Webhooks</span>
-          </Button>
-          <Button variant="outline" className="h-20 flex flex-col items-center justify-center">
-            <Activity className="h-6 w-6 mb-2" />
-            <span className="text-sm">Monitoramento</span>
-          </Button>
-          <Button variant="outline" className="h-20 flex flex-col items-center justify-center">
-            <Settings className="h-6 w-6 mb-2" />
-            <span className="text-sm">Configurações</span>
-          </Button>
-        </div>
+            <AnimatePresence>
+              {showTechnicalDetails && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="mt-6 p-4 bg-gray-50 rounded-lg"
+                >
+                  <h3 className="font-medium mb-3">Detalhes Técnicos</h3>
+                  <div className="space-y-2 text-sm">
+                    <div>Logs de transações: 1.247 registros</div>
+                    <div>Chave API: •••••••••••••••••••••••••••••••••••••••••</div>
+                    <Button variant="outline" size="sm" className="mt-2">
+                      Revalidar Conexão
+                    </Button>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        </motion.div>
 
-        {/* Technical Footer */}
-        <div className="text-center text-sm text-muted-foreground space-y-1">
-          <div>v3.1.2 | Última auditoria: 16/05/2024</div>
-          <div>🔒 Criptografia TLS 1.3 | Latência média: 128ms</div>
-        </div>
+        {/* Monitoramento em Tempo Real */}
+        <motion.div 
+          className="space-y-6"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.6 }}
+        >
+          <div className="border-b border-gray-200 pb-8">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-light text-gray-900">Carga de Equipamentos Agora</h2>
+              <motion.button
+                onClick={handleRefreshEquipment}
+                whileTap={{ scale: 0.95 }}
+                className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+              >
+                <motion.div
+                  animate={isRefreshing ? { rotate: 360 } : {}}
+                  transition={{ duration: 1, repeat: isRefreshing ? Infinity : 0 }}
+                >
+                  <RefreshCw className="h-5 w-5" />
+                </motion.div>
+              </motion.button>
+            </div>
+            
+            <div className="space-y-6">
+              {equipmentLoad.map((equipment, index) => (
+                <motion.div 
+                  key={equipment.name}
+                  className="space-y-2"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                >
+                  <div className="flex justify-between items-center">
+                    <span className="text-lg">{equipment.name}</span>
+                    <span className="text-lg font-mono">{Math.round(equipment.usage)}%</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-4">
+                    <motion.div
+                      className={`h-4 rounded-full bg-gradient-to-r ${equipment.color}`}
+                      initial={{ width: 0 }}
+                      animate={{ width: `${equipment.usage}%` }}
+                      transition={{ duration: 0.8, ease: "easeOut" }}
+                    />
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Footer Fixo com Integrações Prioritárias */}
+        <motion.div 
+          className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-sm border-t border-gray-200 p-4"
+          initial={{ opacity: 0, y: 100 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.8 }}
+        >
+          <div className="max-w-6xl mx-auto flex justify-center space-x-8">
+            <motion.button
+              onClick={handleConnectNewSystem}
+              whileTap={{ scale: 0.95 }}
+              whileHover={{ scale: 1.05 }}
+              className="flex flex-col items-center space-y-2 p-3 rounded-lg hover:bg-gray-100 transition-colors"
+            >
+              <Wifi className="h-6 w-6" />
+              <span className="text-xs">Conectar Novo Sistema</span>
+            </motion.button>
+            
+            <motion.button
+              whileTap={{ scale: 0.95 }}
+              whileHover={{ scale: 1.05 }}
+              className="flex flex-col items-center space-y-2 p-3 rounded-lg hover:bg-gray-100 transition-colors"
+            >
+              <BarChart3 className="h-6 w-6" />
+              <span className="text-xs">Histórico de Sincronizações</span>
+            </motion.button>
+            
+            <motion.button
+              onClick={handleDiagnostic}
+              whileTap={{ scale: 0.95 }}
+              whileHover={{ scale: 1.05 }}
+              className="flex flex-col items-center space-y-2 p-3 rounded-lg hover:bg-gray-100 transition-colors"
+            >
+              <Activity className="h-6 w-6" />
+              <span className="text-xs">Diagnóstico Rápido</span>
+            </motion.button>
+          </div>
+        </motion.div>
+
+        {/* Espaçamento para o footer fixo */}
+        <div className="h-24"></div>
       </div>
     </MainLayout>
   );
