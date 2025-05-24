@@ -1,296 +1,454 @@
 
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import MainLayout from '@/components/layout/MainLayout';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, LineChart, Line } from 'recharts';
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
+import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell, Area, AreaChart } from 'recharts';
 import { 
   Users, 
   DollarSign, 
   UserPlus, 
-  Calendar,
   TrendingUp,
-  Award,
+  Edit3,
+  Refresh,
+  BarChart3,
+  Activity,
+  Zap,
+  Target,
+  Heart,
+  Trophy,
+  Plus,
+  Home,
   Settings,
   Bell
 } from 'lucide-react';
 
-// Mock data for the dashboard
-const frequencyData = [
-  { day: 'Seg', value: 45 },
-  { day: 'Ter', value: 52 },
-  { day: 'Qua', value: 38 },
-  { day: 'Qui', value: 61 },
-  { day: 'Sex', value: 70 },
-  { day: 'Sáb', value: 85 },
-  { day: 'Dom', value: 42 },
+// Real-time mock data with animations
+const generateRealtimeData = () => ({
+  activeMembersToday: Math.floor(Math.random() * 30) + 70,
+  monthlyRevenue: Math.floor(Math.random() * 10000) + 35000,
+  equipmentStatus: Math.floor(Math.random() * 10) + 90,
+  newCheckins: Math.floor(Math.random() * 5) + 12,
+  satisfaction: Math.floor(Math.random() * 20) + 80
+});
+
+const checkinsData = [
+  { time: '06:00', value: 15, peak: false },
+  { time: '08:00', value: 45, peak: true },
+  { time: '10:00', value: 28, peak: false },
+  { time: '12:00', value: 52, peak: true },
+  { time: '14:00', value: 31, peak: false },
+  { time: '16:00', value: 38, peak: false },
+  { time: '18:00', value: 67, peak: true },
+  { time: '20:00', value: 41, peak: false },
 ];
 
-const vipMembers = [
-  { name: 'Maria Silva', plan: 'Premium', lastAccess: '2h atrás' },
-  { name: 'João Santos', plan: 'VIP', lastAccess: '1h atrás' },
-  { name: 'Ana Costa', plan: 'Premium', lastAccess: '3h atrás' },
-  { name: 'Carlos Lima', plan: 'VIP', lastAccess: '45min' },
-  { name: 'Lucia Rocha', plan: 'Premium', lastAccess: '1h atrás' },
+const planDistribution = [
+  { name: 'Premium', value: 40, color: '#007AFF' },
+  { name: 'Standard', value: 35, color: '#34C759' },
+  { name: 'VIP', value: 25, color: '#FF9500' }
+];
+
+const equipmentStatus = [
+  { name: 'Esteiras', status: 'available', count: 8, total: 10 },
+  { name: 'Bicicletas', status: 'busy', count: 6, total: 8 },
+  { name: 'Pesos Livres', status: 'maintenance', count: 12, total: 15 },
+  { name: 'Máquinas', status: 'available', count: 18, total: 20 }
+];
+
+const recentActivities = [
+  { id: 1, type: 'member', text: 'Nova matrícula: Ana Silva - Plano Premium', time: '2 min atrás', priority: 'high' },
+  { id: 2, type: 'equipment', text: 'Manutenção concluída: Esteira #3', time: '5 min atrás', priority: 'medium' },
+  { id: 3, type: 'financial', text: 'Pagamento recebido: R$ 180,00', time: '8 min atrás', priority: 'high' },
+  { id: 4, type: 'member', text: 'Check-in: João Santos', time: '12 min atrás', priority: 'low' }
 ];
 
 const Perfil: React.FC = () => {
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState('agendamentos');
+  const [realtimeStats, setRealtimeStats] = useState(generateRealtimeData());
+  const [isOnline, setIsOnline] = useState(true);
+  const [lastUpdate, setLastUpdate] = useState(new Date());
+  const [selectedMetric, setSelectedMetric] = useState('checkins');
 
-  const handleAction = (action: string) => {
+  // Real-time data updates
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setRealtimeStats(generateRealtimeData());
+      setLastUpdate(new Date());
+    }, 15000); // Update every 15 seconds
+
+    return () => clearInterval(interval);
+  }, []);
+
+  // Simulate network status
+  useEffect(() => {
+    const statusInterval = setInterval(() => {
+      setIsOnline(Math.random() > 0.1); // 90% uptime simulation
+    }, 30000);
+
+    return () => clearInterval(statusInterval);
+  }, []);
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'available': return '#34C759';
+      case 'busy': return '#FF9500';
+      case 'maintenance': return '#FF3B30';
+      default: return '#8E8E93';
+    }
+  };
+
+  const handleQuickAction = (action: string) => {
     toast({
-      title: `${action} executado!`,
-      description: `Ação "${action}" realizada com sucesso.`,
-      className: "bg-green-500 text-white border-none",
+      title: "Ação Executada",
+      description: `${action} realizada com sucesso`,
+      className: "bg-black text-white border-none",
     });
   };
 
-  const actionButtons = [
-    { icon: UserPlus, label: 'Adicionar Aluno', action: 'adicionar-aluno' },
-    { icon: Bell, label: 'Enviar Notificação', action: 'enviar-notificacao' },
-    { icon: TrendingUp, label: 'Relatório Diário', action: 'relatorio-diario' },
-    { icon: Settings, label: 'Config. Equipamentos', action: 'config-equipamentos' },
-  ];
-
-  const tabs = [
-    { id: 'agendamentos', label: 'Agendamentos' },
-    { id: 'financeiro', label: 'Financeiro' },
-    { id: 'alertas', label: 'Alertas' },
-  ];
+  const handleSyncAll = () => {
+    setRealtimeStats(generateRealtimeData());
+    setLastUpdate(new Date());
+    toast({
+      title: "Sincronização Completa",
+      description: "Todos os dados foram atualizados",
+      className: "bg-blue-600 text-white border-none",
+    });
+  };
 
   return (
-    <MainLayout pageTitle="Perfil da Academia" pageSubtitle="Gestão completa da sua academia">
-      {/* Header with vintage academy image */}
-      <div className="relative h-64 mb-8 rounded-xl overflow-hidden">
-        <div 
-          className="absolute inset-0 bg-cover bg-center"
-          style={{
-            backgroundImage: `url('https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80')`,
-            filter: 'sepia(30%) contrast(110%) grayscale(20%)'
-          }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
-        <div className="absolute bottom-6 left-6 text-white">
-          <motion.h1 
-            className="text-4xl font-bold mb-2"
-            style={{ fontFamily: 'Monaco, "Lucida Console", monospace', textShadow: '2px 2px 0px #000000' }}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-          >
-            POWER FITNESS
-          </motion.h1>
-          <motion.p 
-            className="text-xl text-red-500 font-bold"
-            style={{ fontFamily: 'Monaco, "Lucida Console", monospace' }}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-          >
-            Desde 1992
-          </motion.p>
-        </div>
-      </div>
-
-      {/* Stats Section - No Cards */}
-      <div className="grid grid-cols-3 gap-8 mb-8 p-6 bg-black/5 rounded-xl border-b-2 border-gray-300" style={{ fontFamily: 'Monaco, "Lucida Console", monospace' }}>
-        <motion.div 
-          className="text-center"
-          whileHover={{ scale: 1.05 }}
-          transition={{ type: "spring", stiffness: 300 }}
-        >
-          <div className="text-3xl font-bold text-black mb-1">45</div>
-          <div className="text-sm text-gray-600 uppercase tracking-wide">Clientes Hoje</div>
-        </motion.div>
-        <motion.div 
-          className="text-center border-l border-r border-gray-300"
-          whileHover={{ scale: 1.05 }}
-          transition={{ type: "spring", stiffness: 300 }}
-        >
-          <div className="text-3xl font-bold text-black mb-1">R$ 2.300</div>
-          <div className="text-sm text-gray-600 uppercase tracking-wide">Faturamento</div>
-        </motion.div>
-        <motion.div 
-          className="text-center"
-          whileHover={{ scale: 1.05 }}
-          transition={{ type: "spring", stiffness: 300 }}
-        >
-          <div className="text-3xl font-bold text-black mb-1">3</div>
-          <div className="text-sm text-gray-600 uppercase tracking-wide">Novos Cadastros</div>
-        </motion.div>
-      </div>
-
-      {/* Action Buttons Grid */}
-      <div className="grid grid-cols-4 gap-6 mb-8">
-        {actionButtons.map((button, index) => {
-          const Icon = button.icon;
-          return (
+    <MainLayout
+      pageTitle="Command Your Empire"
+      pageSubtitle="Every rep, every member, every detail."
+      headerImage="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?q=80&w=2000&auto=format&fit=crop"
+    >
+      <div className="space-y-8 max-w-7xl mx-auto">
+        
+        {/* Status Header */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-4">
             <motion.div
-              key={button.action}
+              animate={{ scale: isOnline ? [1, 1.1, 1] : 1 }}
+              transition={{ duration: 2, repeat: Infinity }}
+              className={`w-3 h-3 rounded-full ${isOnline ? 'bg-green-500' : 'bg-red-500'}`}
+            />
+            <span className="text-sm text-gray-600">
+              Academia {isOnline ? 'Online' : 'Offline'} • Última atualização: {lastUpdate.toLocaleTimeString()}
+            </span>
+          </div>
+          
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={handleSyncAll}
+            className="p-2 rounded-full bg-blue-50 hover:bg-blue-100 transition-colors"
+          >
+            <motion.div
+              animate={{ rotate: [0, 360] }}
+              transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+            >
+              <Refresh className="h-5 w-5 text-blue-600" />
+            </motion.div>
+          </motion.button>
+        </div>
+
+        {/* Real-time Metrics Grid */}
+        <div className="grid grid-cols-4 gap-6">
+          {[
+            {
+              label: 'Membros Ativos Hoje',
+              value: realtimeStats.activeMembersToday,
+              icon: Users,
+              color: 'bg-blue-500',
+              trend: '+12%'
+            },
+            {
+              label: 'Receita do Mês',
+              value: `R$ ${realtimeStats.monthlyRevenue.toLocaleString()}`,
+              icon: DollarSign,
+              color: 'bg-green-500',
+              trend: '+8%'
+            },
+            {
+              label: 'Equipamentos OK',
+              value: `${realtimeStats.equipmentStatus}%`,
+              icon: Activity,
+              color: 'bg-orange-500',
+              trend: '+2%'
+            },
+            {
+              label: 'Check-ins Hoje',
+              value: realtimeStats.newCheckins,
+              icon: Target,
+              color: 'bg-purple-500',
+              trend: '+15%'
+            }
+          ].map((metric, index) => (
+            <motion.div
+              key={metric.label}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
+              transition={{ delay: index * 0.1 }}
+              className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow"
             >
-              <Button
-                onClick={() => handleAction(button.label)}
-                className="w-full h-24 bg-white border-2 border-black text-black hover:bg-black hover:text-white transition-all duration-300 text-sm"
-                style={{
-                  fontFamily: 'Monaco, "Lucida Console", monospace',
-                  transform: 'none',
-                  boxShadow: '4px 4px 0px #000000'
-                }}
-                onMouseDown={(e) => {
-                  e.currentTarget.style.transform = 'translateY(2px)';
-                  e.currentTarget.style.boxShadow = '2px 2px 0px #000000';
-                }}
-                onMouseUp={(e) => {
-                  e.currentTarget.style.transform = 'none';
-                  e.currentTarget.style.boxShadow = '4px 4px 0px #000000';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'none';
-                  e.currentTarget.style.boxShadow = '4px 4px 0px #000000';
-                }}
-              >
-                <div className="flex flex-col items-center gap-2">
-                  <Icon size={24} />
-                  <span className="text-xs leading-tight">{button.label}</span>
-                </div>
-              </Button>
-            </motion.div>
-          );
-        })}
-      </div>
-
-      {/* Dynamic Highlights */}
-      <div className="grid grid-cols-2 gap-8 mb-8" style={{ fontFamily: 'Monaco, "Lucida Console", monospace' }}>
-        {/* Frequency Chart */}
-        <motion.div
-          className="bg-black p-6 rounded-xl"
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.6 }}
-        >
-          <h3 className="text-lime-400 text-lg mb-4 uppercase tracking-wider">
-            Frequência Semanal
-          </h3>
-          <ResponsiveContainer width="100%" height={200}>
-            <LineChart data={frequencyData}>
-              <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{ fill: '#32CD32', fontSize: 12 }} />
-              <YAxis axisLine={false} tickLine={false} tick={{ fill: '#32CD32', fontSize: 12 }} />
-              <Line 
-                type="monotone" 
-                dataKey="value" 
-                stroke="#32CD32" 
-                strokeWidth={3}
-                dot={{ fill: '#32CD32', strokeWidth: 2, r: 4 }}
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        </motion.div>
-
-        {/* VIP Members Table */}
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.6 }}
-        >
-          <h3 className="text-lg font-bold mb-4 uppercase tracking-wider">
-            Membros VIP
-          </h3>
-          <div className="space-y-1">
-            {vipMembers.map((member, index) => (
-              <motion.div
-                key={member.name}
-                className={`p-3 flex justify-between items-center text-sm ${
-                  index % 2 === 0 ? 'bg-green-50' : 'bg-pink-50'
-                } border-l-4 border-gray-300`}
-                whileHover={{ backgroundColor: '#f0f0f0', scale: 1.02 }}
-              >
+              <div className="flex items-center justify-between">
                 <div>
-                  <div className="font-bold text-black">{member.name}</div>
-                  <div className="text-gray-600">{member.plan}</div>
+                  <p className="text-sm text-gray-600 mb-1">{metric.label}</p>
+                  <motion.p
+                    key={metric.value}
+                    initial={{ scale: 1.2, color: '#007AFF' }}
+                    animate={{ scale: 1, color: '#000000' }}
+                    transition={{ duration: 0.3 }}
+                    className="text-2xl font-semibold"
+                  >
+                    {metric.value}
+                  </motion.p>
+                  <span className="text-xs text-green-600 font-medium">{metric.trend}</span>
                 </div>
-                <div className="text-gray-500 text-xs">{member.lastAccess}</div>
+                <motion.div
+                  animate={{ 
+                    rotate: [0, 5, -5, 0],
+                    scale: [1, 1.1, 1]
+                  }}
+                  transition={{ 
+                    duration: 3, 
+                    repeat: Infinity,
+                    delay: index * 0.5
+                  }}
+                  className={`${metric.color} p-3 rounded-xl`}
+                >
+                  <metric.icon className="h-6 w-6 text-white" />
+                </motion.div>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Interactive Charts Section */}
+        <div className="grid grid-cols-2 gap-8">
+          
+          {/* Check-ins Chart */}
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100"
+          >
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-semibold">Check-ins de Hoje</h3>
+              <div className="flex space-x-2">
+                {['checkins', 'revenue'].map((metric) => (
+                  <button
+                    key={metric}
+                    onClick={() => setSelectedMetric(metric)}
+                    className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+                      selectedMetric === metric
+                        ? 'bg-blue-100 text-blue-700'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    {metric === 'checkins' ? 'Check-ins' : 'Receita'}
+                  </button>
+                ))}
+              </div>
+            </div>
+            
+            <ResponsiveContainer width="100%" height={200}>
+              <AreaChart data={checkinsData}>
+                <defs>
+                  <linearGradient id="colorGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#007AFF" stopOpacity={0.3}/>
+                    <stop offset="95%" stopColor="#007AFF" stopOpacity={0}/>
+                  </linearGradient>
+                </defs>
+                <XAxis 
+                  dataKey="time" 
+                  axisLine={false} 
+                  tickLine={false}
+                  tick={{ fontSize: 12, fill: '#8E8E93' }}
+                />
+                <YAxis hide />
+                <ChartTooltip content={<ChartTooltipContent />} />
+                <Area
+                  type="monotone"
+                  dataKey="value"
+                  stroke="#007AFF"
+                  strokeWidth={3}
+                  fill="url(#colorGradient)"
+                  dot={{ fill: '#007AFF', strokeWidth: 2, r: 4 }}
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </motion.div>
+
+          {/* Plan Distribution Chart */}
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100"
+          >
+            <h3 className="text-lg font-semibold mb-6">Distribuição de Planos</h3>
+            
+            <div className="flex items-center justify-center">
+              <ResponsiveContainer width="100%" height={200}>
+                <PieChart>
+                  <Pie
+                    data={planDistribution}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={50}
+                    outerRadius={80}
+                    paddingAngle={5}
+                    dataKey="value"
+                  >
+                    {planDistribution.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <ChartTooltip content={<ChartTooltipContent />} />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+            
+            <div className="flex justify-center space-x-4 mt-4">
+              {planDistribution.map((plan) => (
+                <div key={plan.name} className="flex items-center space-x-2">
+                  <div 
+                    className="w-3 h-3 rounded-full"
+                    style={{ backgroundColor: plan.color }}
+                  />
+                  <span className="text-sm text-gray-600">{plan.name}</span>
+                  <span className="text-sm font-medium">{plan.value}%</span>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        </div>
+
+        {/* Equipment Status */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100"
+        >
+          <h3 className="text-lg font-semibold mb-6">Status dos Equipamentos (Tempo Real)</h3>
+          
+          <div className="grid grid-cols-4 gap-4">
+            {equipmentStatus.map((equipment, index) => (
+              <motion.div
+                key={equipment.name}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: index * 0.1 }}
+                whileHover={{ scale: 1.05 }}
+                className="p-4 rounded-xl border-2 transition-all cursor-pointer"
+                style={{ borderColor: getStatusColor(equipment.status) }}
+                onClick={() => handleQuickAction(`Verificar ${equipment.name}`)}
+              >
+                <div className="flex items-center space-x-3 mb-2">
+                  <motion.div
+                    animate={{ 
+                      backgroundColor: getStatusColor(equipment.status),
+                      scale: [1, 1.2, 1]
+                    }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                    className="w-3 h-3 rounded-full"
+                  />
+                  <span className="font-medium">{equipment.name}</span>
+                </div>
+                <p className="text-sm text-gray-600">
+                  {equipment.count}/{equipment.total} disponíveis
+                </p>
               </motion.div>
             ))}
           </div>
         </motion.div>
-      </div>
 
-      {/* Control Panel Tabs */}
-      <div className="bg-gray-100 rounded-xl p-6" style={{ fontFamily: 'Monaco, "Lucida Console", monospace' }}>
-        <div className="flex space-x-1 mb-6 border-b-2 border-gray-300">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`px-6 py-3 text-sm uppercase tracking-wide transition-all duration-300 ${
-                activeTab === tab.id
-                  ? 'bg-black text-white border-b-4 border-red-500'
-                  : 'text-gray-600 hover:text-black hover:bg-gray-200'
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
-
+        {/* Recent Activities Feed */}
         <motion.div
-          key={activeTab}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-          className="min-h-[200px]"
+          className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100"
         >
-          {activeTab === 'agendamentos' && (
-            <div className="grid grid-cols-7 gap-2 text-sm">
-              {['DOM', 'SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SÁB'].map((day) => (
-                <div key={day} className="bg-white p-4 text-center border border-gray-300">
-                  <div className="font-bold mb-2">{day}</div>
-                  <div className="text-xs text-gray-600">08:00 - HIIT</div>
-                  <div className="text-xs text-gray-600">10:00 - Yoga</div>
-                  <div className="text-xs text-gray-600">18:00 - Crossfit</div>
-                </div>
-              ))}
-            </div>
-          )}
+          <h3 className="text-lg font-semibold mb-6">Atividades Recentes</h3>
           
-          {activeTab === 'financeiro' && (
-            <div className="space-y-2">
-              <div className="grid grid-cols-3 gap-4 text-sm">
-                <div className="bg-green-100 p-4 border-l-4 border-green-500">
-                  <div className="font-bold">Entradas</div>
-                  <div className="text-lg">R$ 15.420,00</div>
-                </div>
-                <div className="bg-red-100 p-4 border-l-4 border-red-500">
-                  <div className="font-bold">Saídas</div>
-                  <div className="text-lg">R$ 8.230,00</div>
-                </div>
-                <div className="bg-blue-100 p-4 border-l-4 border-blue-500">
-                  <div className="font-bold">Lucro</div>
-                  <div className="text-lg">R$ 7.190,00</div>
-                </div>
-              </div>
-            </div>
-          )}
-          
-          {activeTab === 'alertas' && (
-            <div className="space-y-3">
-              {[
-                'João Silva - Pagamento em atraso há 5 dias',
-                'Equipamento Esteira 03 - Manutenção necessária',
-                'Maria Santos - 15 dias sem treinar'
-              ].map((alert, index) => (
-                <div key={index} className="bg-yellow-200 p-3 border-l-4 border-yellow-500 text-sm">
-                  ⚠️ {alert}
-                </div>
+          <div className="space-y-3">
+            <AnimatePresence>
+              {recentActivities.map((activity, index) => (
+                <motion.div
+                  key={activity.id}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 20 }}
+                  transition={{ delay: index * 0.1 }}
+                  whileHover={{ scale: 1.02, backgroundColor: '#f8f9fa' }}
+                  className="flex items-center justify-between p-3 rounded-lg transition-colors cursor-pointer"
+                  onClick={() => handleQuickAction(`Detalhes: ${activity.text}`)}
+                >
+                  <div className="flex items-center space-x-3">
+                    <motion.div
+                      animate={{ 
+                        scale: activity.priority === 'high' ? [1, 1.3, 1] : 1
+                      }}
+                      transition={{ duration: 1.5, repeat: Infinity }}
+                      className={`w-2 h-2 rounded-full ${
+                        activity.priority === 'high' ? 'bg-red-500' :
+                        activity.priority === 'medium' ? 'bg-orange-500' : 'bg-green-500'
+                      }`}
+                    />
+                    <span className="text-sm">{activity.text}</span>
+                  </div>
+                  <span className="text-xs text-gray-500">{activity.time}</span>
+                </motion.div>
               ))}
-            </div>
-          )}
+            </AnimatePresence>
+          </div>
         </motion.div>
+
+        {/* Floating Action Buttons */}
+        <div className="fixed bottom-8 right-8 space-y-3">
+          <motion.button
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            onClick={() => handleQuickAction('Menu de Ações Rápidas')}
+            className="w-14 h-14 bg-black rounded-full shadow-lg flex items-center justify-center text-white"
+          >
+            <Plus className="h-6 w-6" />
+          </motion.button>
+        </div>
+
+        {/* Bottom Dock */}
+        <motion.div
+          initial={{ opacity: 0, y: 50 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-sm border-t border-gray-200 p-4"
+        >
+          <div className="max-w-7xl mx-auto flex justify-center space-x-12">
+            {[
+              { icon: Home, label: 'Home', active: true },
+              { icon: BarChart3, label: 'Analytics', active: false },
+              { icon: Users, label: 'Membros', active: false },
+              { icon: Settings, label: 'Configurações', active: false }
+            ].map((item) => (
+              <motion.button
+                key={item.label}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={() => handleQuickAction(item.label)}
+                className={`flex flex-col items-center space-y-1 p-2 rounded-lg transition-colors ${
+                  item.active ? 'text-blue-600 bg-blue-50' : 'text-gray-600 hover:text-black'
+                }`}
+              >
+                <item.icon className="h-6 w-6" />
+                <span className="text-xs font-medium">{item.label}</span>
+              </motion.button>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* Spacer for fixed bottom dock */}
+        <div className="h-20" />
       </div>
     </MainLayout>
   );
