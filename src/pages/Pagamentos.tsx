@@ -1,37 +1,32 @@
 
 import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import MainLayout from '@/components/layout/MainLayout';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Input } from '@/components/ui/input';
+import { useToast } from '@/hooks/use-toast';
 import { 
-  Search, 
-  Plus, 
-  Download, 
-  Filter,
-  ArrowUpDown,
+  CreditCard, 
+  TrendingUp, 
   AlertTriangle,
   CheckCircle,
-  XCircle,
-  Bell
+  Clock,
+  Plus,
+  Download,
+  Zap,
+  Shield,
+  Smartphone,
+  Search,
+  Filter,
+  Bell,
+  Receipt,
+  MessageCircle,
+  BarChart3,
+  PieChart,
+  Activity
 } from 'lucide-react';
-import MainLayout from '@/components/layout/MainLayout';
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
-} from '@/components/ui/table';
-import { Progress } from '@/components/ui/progress';
-import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { toast } from 'sonner';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import {
   AreaChart,
   Area,
@@ -39,527 +34,598 @@ import {
   Line,
   XAxis,
   YAxis,
-  CartesianGrid,
-  Tooltip,
   ResponsiveContainer,
+  PieChart as RechartsPieChart,
+  Pie,
+  Cell,
+  BarChart,
+  Bar,
+  Tooltip
 } from 'recharts';
 
-// Dados de exemplo para a tabela de alunos
-const studentData = [
-  { 
-    id: 1, 
-    name: "Ana Silva", 
-    photo: "https://i.pravatar.cc/150?img=1", 
-    attendance: 85, 
-    lastPayment: "2024-05-10", 
-    status: "Ativo", 
-    value: 120, 
-    nextPayment: "2024-06-10",
-    expanded: false
-  },
-  { 
-    id: 2, 
-    name: "Carlos Oliveira", 
-    photo: "https://i.pravatar.cc/150?img=2", 
-    attendance: 62, 
-    lastPayment: "2024-04-05", 
-    status: "Atrasado", 
-    value: 80, 
-    nextPayment: "2024-05-05",
-    expanded: false
-  },
-  { 
-    id: 3, 
-    name: "Mariana Costa", 
-    photo: "https://i.pravatar.cc/150?img=3", 
-    attendance: 93, 
-    lastPayment: "2024-05-15", 
-    status: "Ativo", 
-    value: 100, 
-    nextPayment: "2024-06-15",
-    expanded: false
-  },
-  { 
-    id: 4, 
-    name: "Pedro Santos", 
-    photo: "https://i.pravatar.cc/150?img=4", 
-    attendance: 70, 
-    lastPayment: "2024-04-20", 
-    status: "Pendente", 
-    value: 120, 
-    nextPayment: "2024-05-20",
-    expanded: false
-  },
-  { 
-    id: 5, 
-    name: "Juliana Mendes", 
-    photo: "https://i.pravatar.cc/150?img=5", 
-    attendance: 95, 
-    lastPayment: "2024-01-10", 
-    status: "Ativo", 
-    value: 1100, 
-    nextPayment: "2025-01-10",
-    expanded: false
-  },
-  { 
-    id: 6, 
-    name: "Roberto Almeida", 
-    photo: "https://i.pravatar.cc/150?img=6", 
-    attendance: 45, 
-    lastPayment: "2024-02-15", 
-    status: "Inativo", 
-    value: 280, 
-    nextPayment: "2024-05-15",
-    expanded: false
-  },
-  { 
-    id: 7, 
-    name: "Fernanda Lima", 
-    photo: "https://i.pravatar.cc/150?img=7", 
-    attendance: 88, 
-    lastPayment: "2024-05-08", 
-    status: "Ativo", 
-    value: 100, 
-    nextPayment: "2024-06-08",
-    expanded: false
-  },
-];
+// Dados de pagamentos em tempo real
+const generateRealtimePaymentData = () => ({
+  totalReceived: Math.floor(Math.random() * 5000) + 25000,
+  totalPending: Math.floor(Math.random() * 2000) + 3000,
+  canceledCount: Math.floor(Math.random() * 3) + 2,
+  nextWeekPrediction: Math.floor(Math.random() * 1000) + 8000,
+  successRate: Math.floor(Math.random() * 10) + 90
+});
 
-// Dados para os gráficos
+// Dados de exemplo para gráficos
 const revenueData = [
-  { month: 'Jan', value: 22000 },
-  { month: 'Fev', value: 24000 },
-  { month: 'Mar', value: 26000 },
-  { month: 'Abr', value: 25000 },
-  { month: 'Mai', value: 28000 },
-  { month: 'Jun', value: 30000 },
+  { month: 'Jan', received: 22000, pending: 3000, predicted: 25000 },
+  { month: 'Fev', received: 24000, pending: 2800, predicted: 27000 },
+  { month: 'Mar', received: 26000, pending: 3200, predicted: 29000 },
+  { month: 'Abr', received: 25000, pending: 3500, predicted: 28500 },
+  { month: 'Mai', received: 28000, pending: 3000, predicted: 31000 },
+  { month: 'Jun', received: 30000, pending: 2500, predicted: 32500 }
 ];
 
-const attritionData = [
-  { month: 'Jan', actual: 5, predicted: 7 },
-  { month: 'Fev', actual: 7, predicted: 6 },
-  { month: 'Mar', actual: 4, predicted: 5 },
-  { month: 'Abr', actual: 6, predicted: 8 },
-  { month: 'Mai', actual: 5, predicted: 7 },
-  { month: 'Jun', actual: 6, predicted: 8 },
+const paymentMethodsData = [
+  { name: 'PIX', value: 45, color: '#00FF88' },
+  { name: 'Cartão', value: 35, color: '#007AFF' },
+  { name: 'Boleto', value: 15, color: '#FF9500' },
+  { name: 'Dinheiro', value: 5, color: '#FF3B30' }
 ];
 
-const Pagamentos = () => {
+const paymentsData = [
+  {
+    id: 1,
+    name: 'Ana Silva',
+    photo: 'https://i.pravatar.cc/150?img=1',
+    amount: 120,
+    dueDate: '2024-05-20',
+    status: 'paid',
+    plan: 'Premium',
+    paymentMethod: 'PIX'
+  },
+  {
+    id: 2,
+    name: 'Carlos Oliveira',
+    photo: 'https://i.pravatar.cc/150?img=2',
+    amount: 150,
+    dueDate: '2024-05-22',
+    status: 'overdue',
+    plan: 'VIP',
+    paymentMethod: 'Cartão'
+  },
+  {
+    id: 3,
+    name: 'Marta Rocha',
+    photo: 'https://i.pravatar.cc/150?img=3',
+    amount: 90,
+    dueDate: '2024-05-25',
+    status: 'pending',
+    plan: 'Basic',
+    paymentMethod: 'Boleto'
+  },
+  {
+    id: 4,
+    name: 'João Santos',
+    photo: 'https://i.pravatar.cc/150?img=4',
+    amount: 180,
+    dueDate: '2024-05-28',
+    status: 'pending',
+    plan: 'Premium',
+    paymentMethod: 'PIX'
+  },
+  {
+    id: 5,
+    name: 'Lucia Mendes',
+    photo: 'https://i.pravatar.cc/150?img=5',
+    amount: 200,
+    dueDate: '2024-05-30',
+    status: 'paid',
+    plan: 'VIP',
+    paymentMethod: 'Cartão'
+  }
+];
+
+const Pagamentos: React.FC = () => {
+  const { toast } = useToast();
+  const [realtimeData, setRealtimeData] = useState(generateRealtimePaymentData());
   const [searchTerm, setSearchTerm] = useState('');
-  const [sortBy, setSortBy] = useState('name');
-  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
-  const [students, setStudents] = useState(studentData);
+  const [selectedFilter, setSelectedFilter] = useState('all');
+  const [lastUpdate, setLastUpdate] = useState(new Date());
 
-  // Calcular métricas
-  const activeStudents = studentData.filter(student => student.status === 'Ativo').length;
-  const totalRevenue = studentData.reduce((sum, student) => sum + student.value, 0);
-  const attritionRisk = 12; // Valor fixo para exemplo
-  const averageAttendance = Math.round(studentData.reduce((sum, student) => sum + student.attendance, 0) / studentData.length);
+  // Atualização em tempo real dos dados
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setRealtimeData(generateRealtimePaymentData());
+      setLastUpdate(new Date());
+    }, 15000);
 
-  // Função para filtrar e ordenar os dados
-  const getFilteredAndSortedData = () => {
-    return students
-      .filter(student => 
-        student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        student.status.toLowerCase().includes(searchTerm.toLowerCase())
-      )
-      .sort((a, b) => {
-        if (sortBy === 'name') {
-          return sortDirection === 'asc' 
-            ? a.name.localeCompare(b.name) 
-            : b.name.localeCompare(a.name);
-        }
-        if (sortBy === 'attendance') {
-          return sortDirection === 'asc' 
-            ? a.attendance - b.attendance 
-            : b.attendance - a.attendance;
-        }
-        if (sortBy === 'lastPayment') {
-          return sortDirection === 'asc' 
-            ? new Date(a.lastPayment).getTime() - new Date(b.lastPayment).getTime() 
-            : new Date(b.lastPayment).getTime() - new Date(a.lastPayment).getTime();
-        }
-        return 0;
-      });
+    return () => clearInterval(interval);
+  }, []);
+
+  const formatCurrency = (value: number) => {
+    return new Intl.NumberFormat('pt-BR', { 
+      style: 'currency', 
+      currency: 'BRL' 
+    }).format(value);
   };
 
-  // Função para mudar a ordenação
-  const handleSort = (column: string) => {
-    if (sortBy === column) {
-      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortBy(column);
-      setSortDirection('asc');
-    }
-  };
-
-  // Função para formatar data
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
-    return `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
+    return `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}`;
   };
 
-  // Função para expandir/colapsar detalhes do aluno
-  const toggleExpand = (id: number) => {
-    setStudents(students.map(student => 
-      student.id === id ? { ...student, expanded: !student.expanded } : student
-    ));
-  };
-
-  // Função para exportar dados
-  const exportData = () => {
-    toast.success('Dados exportados com sucesso');
-  };
-
-  // Função para adicionar novo aluno
-  const addNewStudent = () => {
-    toast.success('Formulário para adicionar novo aluno aberto');
-  };
-
-  // Função para enviar notificação
-  const sendNotification = (studentId: number) => {
-    toast.success(`Notificação enviada para o aluno #${studentId}`);
-  };
-
-  // Função para formatar valores como moeda
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
-  };
-
-  // Customização do tooltip do gráfico
-  const CustomTooltip = ({ active, payload }: any) => {
-    if (active && payload && payload.length) {
-      const value = payload[0].value;
-      const formattedValue = typeof value === 'number' ? formatCurrency(value) : value;
-      
-      return (
-        <div className="bg-background/90 backdrop-blur-sm p-3 border border-border rounded-md shadow-md">
-          <p className="text-sm font-medium">{`${payload[0].name}: ${formattedValue}`}</p>
-        </div>
-      );
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'paid': return <CheckCircle className="h-4 w-4 text-green-500" />;
+      case 'overdue': return <AlertTriangle className="h-4 w-4 text-red-500" />;
+      case 'pending': return <Clock className="h-4 w-4 text-orange-500" />;
+      default: return null;
     }
-    return null;
   };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'paid': return 'bg-green-500/20 text-green-500 border-green-500/30';
+      case 'overdue': return 'bg-red-500/20 text-red-500 border-red-500/30';
+      case 'pending': return 'bg-orange-500/20 text-orange-500 border-orange-500/30';
+      default: return 'bg-gray-500/20 text-gray-500 border-gray-500/30';
+    }
+  };
+
+  const handleQuickAction = (action: string, paymentId?: number) => {
+    toast({
+      title: "Ação Executada",
+      description: `${action} ${paymentId ? `para pagamento #${paymentId}` : ''} realizada com sucesso`,
+      className: "bg-black text-white border-none",
+    });
+  };
+
+  const filteredPayments = paymentsData.filter(payment => {
+    const matchesSearch = payment.name.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesFilter = selectedFilter === 'all' || payment.status === selectedFilter;
+    return matchesSearch && matchesFilter;
+  });
 
   return (
     <MainLayout
-      pageTitle="Planilha e Faturamento"
-      pageSubtitle="Gerencie pagamentos e monitore receitas da sua academia"
-      headerImage="https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80"
+      pageTitle="Financial Command Center"
+      pageSubtitle="Every transaction, every insight, perfect control."
+      headerImage="https://images.unsplash.com/photo-1554224155-6726b3ff858f?q=80&w=2000&auto=format&fit=crop"
     >
-      {/* Header com métricas */}
-      <div className="grid grid-cols-4 gap-4 mb-6">
-        <div className="bg-background/30 backdrop-blur-md border border-white/20 rounded-xl p-4 flex flex-col">
-          <div className="text-sm text-muted-foreground mb-1 flex items-center">
-            Alunos Ativos
-          </div>
-          <div className="text-3xl font-bold text-white animate-pulse">
-            {activeStudents}
-          </div>
-          <div className="text-xs text-white/70 mt-1">
-            de {studentData.length} alunos
-          </div>
-        </div>
+      <div className="space-y-8 max-w-7xl mx-auto">
         
-        <div className="bg-background/30 backdrop-blur-md border border-white/20 rounded-xl p-4 flex flex-col">
-          <div className="text-sm text-muted-foreground mb-1 flex items-center">
-            Receita do Mês
-          </div>
-          <div className="text-3xl font-bold text-white">
-            {formatCurrency(totalRevenue)}
-          </div>
-          <div className="h-8 mt-1">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={revenueData.slice(-5)}>
-                <Line 
-                  type="monotone" 
-                  dataKey="value" 
-                  stroke="#00FF88" 
-                  strokeWidth={2} 
-                  dot={false}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-        
-        <div className="bg-background/30 backdrop-blur-md border border-white/20 rounded-xl p-4 flex flex-col">
-          <div className="text-sm text-muted-foreground mb-1 flex items-center">
-            Risco de Evasão
-            <AlertTriangle 
-              className="ml-2 h-4 w-4 text-amber-500" 
-            />
-          </div>
-          <div className="text-3xl font-bold text-white flex items-center">
-            {attritionRisk}%
-            <span className="ml-2 text-xs bg-amber-500/20 text-amber-400 px-1.5 py-0.5 rounded-full flex items-center">
-              <span className="text-amber-500">▲</span> 2%
-            </span>
-          </div>
-          <div className="text-xs text-white/70 mt-1">
-            Último mês: 10%
-          </div>
-        </div>
-        
-        <div className="bg-background/30 backdrop-blur-md border border-white/20 rounded-xl p-4 flex flex-col">
-          <div className="text-sm text-muted-foreground mb-1 flex items-center">
-            Frequência Média
-          </div>
-          <div className="text-3xl font-bold text-white">
-            {averageAttendance}%
-          </div>
-          <div className="mt-2">
-            <Progress 
-              value={averageAttendance} 
-              className="h-2 bg-white/20" 
-              indicatorClassName="bg-academy-purple"
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Gráfico de tendência de evasão */}
-      <div className="mb-6 bg-background/30 backdrop-blur-md border border-white/20 rounded-xl p-4">
-        <h2 className="text-lg font-medium mb-4">Tendência de Evasão</h2>
-        <div className="h-[200px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart
-              data={attritionData}
-              margin={{ top: 5, right: 30, left: 10, bottom: 5 }}
+        {/* Status Header Premium */}
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center space-x-4">
+            <motion.div
+              animate={{ rotate: [0, 360] }}
+              transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+              className="w-8 h-8 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full flex items-center justify-center"
             >
-              <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
-              <XAxis dataKey="month" tick={{ fill: '#f1f1f1' }} />
-              <YAxis tick={{ fill: '#f1f1f1' }} />
-              <Tooltip content={<CustomTooltip />} />
-              <Line 
-                name="Cancelamentos Reais" 
-                type="monotone" 
-                dataKey="actual" 
-                stroke="#3B82F6" 
-                strokeWidth={2}
-                activeDot={{ r: 6 }} 
-              />
-              <Line 
-                name="Previsão da IA" 
-                type="monotone" 
-                dataKey="predicted" 
-                stroke="#00FF88" 
-                strokeWidth={2} 
-                strokeDasharray="5 5"
-              />
-            </LineChart>
-          </ResponsiveContainer>
+              <Activity className="h-4 w-4 text-white" />
+            </motion.div>
+            <div>
+              <h2 className="text-2xl font-bold text-white">
+                Fluxo Financeiro: {formatCurrency(realtimeData.totalReceived)}/mês
+              </h2>
+              <p className="text-sm text-gray-400">
+                Última atualização: {lastUpdate.toLocaleTimeString()}
+              </p>
+            </div>
+          </div>
+          
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => setRealtimeData(generateRealtimePaymentData())}
+            className="p-3 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+          >
+            <Download className="h-5 w-5 text-white" />
+          </motion.button>
         </div>
-      </div>
 
-      {/* Tabela de alunos */}
-      <div className="bg-background/30 backdrop-blur-md border border-white/20 rounded-xl p-4">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-lg font-medium">Planilha de Pagamentos</h2>
+        {/* Cards de Visão Financeira */}
+        <div className="grid grid-cols-4 gap-6">
+          {[
+            {
+              title: 'Recebidos',
+              value: formatCurrency(realtimeData.totalReceived),
+              percentage: '+12%',
+              icon: CheckCircle,
+              color: 'bg-green-500',
+              bgColor: 'bg-green-500/10'
+            },
+            {
+              title: 'Pendentes',
+              value: formatCurrency(realtimeData.totalPending),
+              percentage: '7 clientes',
+              icon: Clock,
+              color: 'bg-orange-500',
+              bgColor: 'bg-orange-500/10'
+            },
+            {
+              title: 'Cancelamentos',
+              value: `${realtimeData.canceledCount} (R$ 900)`,
+              percentage: '⚠️ 1 reincidente',
+              icon: AlertTriangle,
+              color: 'bg-red-500',
+              bgColor: 'bg-red-500/10'
+            },
+            {
+              title: 'Previsão IA',
+              value: formatCurrency(realtimeData.nextWeekPrediction),
+              percentage: `${realtimeData.successRate}% de probabilidade`,
+              icon: TrendingUp,
+              color: 'bg-blue-500',
+              bgColor: 'bg-blue-500/10'
+            }
+          ].map((card, index) => (
+            <motion.div
+              key={card.title}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1 }}
+              className={`${card.bgColor} rounded-2xl p-6 border border-white/10 hover:border-white/20 transition-all`}
+            >
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-sm text-gray-400 font-medium">{card.title}</h3>
+                <motion.div
+                  animate={{ 
+                    scale: [1, 1.1, 1],
+                    rotate: [0, 5, -5, 0]
+                  }}
+                  transition={{ 
+                    duration: 2, 
+                    repeat: Infinity,
+                    delay: index * 0.3
+                  }}
+                  className={`${card.color} p-2 rounded-xl`}
+                >
+                  <card.icon className="h-5 w-5 text-white" />
+                </motion.div>
+              </div>
+              
+              <motion.div
+                key={card.value}
+                initial={{ scale: 1.1, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ duration: 0.3 }}
+                className="text-2xl font-bold text-white mb-1"
+              >
+                {card.value}
+              </motion.div>
+              
+              <p className="text-xs text-gray-400">{card.percentage}</p>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Gráficos Dinâmicos */}
+        <div className="grid grid-cols-3 gap-8">
+          
+          {/* Gráfico de Receita */}
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="col-span-2 bg-white/5 backdrop-blur-md rounded-2xl p-6 border border-white/10"
+          >
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-semibold text-white">Evolução Financeira</h3>
+              <div className="flex space-x-2">
+                {['6M', '1A', 'Tudo'].map((period) => (
+                  <button
+                    key={period}
+                    className="px-3 py-1 rounded-full text-xs font-medium bg-white/10 text-white hover:bg-white/20 transition-colors"
+                  >
+                    {period}
+                  </button>
+                ))}
+              </div>
+            </div>
+            
+            <ResponsiveContainer width="100%" height={250}>
+              <AreaChart data={revenueData}>
+                <defs>
+                  <linearGradient id="receivedGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#00FF88" stopOpacity={0.3}/>
+                    <stop offset="95%" stopColor="#00FF88" stopOpacity={0}/>
+                  </linearGradient>
+                  <linearGradient id="pendingGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#FF9500" stopOpacity={0.3}/>
+                    <stop offset="95%" stopColor="#FF9500" stopOpacity={0}/>
+                  </linearGradient>
+                </defs>
+                <XAxis 
+                  dataKey="month" 
+                  axisLine={false} 
+                  tickLine={false}
+                  tick={{ fontSize: 12, fill: '#8E8E93' }}
+                />
+                <YAxis hide />
+                <Tooltip 
+                  contentStyle={{ 
+                    backgroundColor: 'rgba(0,0,0,0.8)', 
+                    border: 'none', 
+                    borderRadius: '12px',
+                    color: 'white'
+                  }}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="received"
+                  stroke="#00FF88"
+                  strokeWidth={3}
+                  fill="url(#receivedGradient)"
+                />
+                <Area
+                  type="monotone"
+                  dataKey="pending"
+                  stroke="#FF9500"
+                  strokeWidth={2}
+                  fill="url(#pendingGradient)"
+                />
+                <Line
+                  type="monotone"
+                  dataKey="predicted"
+                  stroke="#007AFF"
+                  strokeWidth={2}
+                  strokeDasharray="5 5"
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </motion.div>
+
+          {/* Métodos de Pagamento */}
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="bg-white/5 backdrop-blur-md rounded-2xl p-6 border border-white/10"
+          >
+            <h3 className="text-lg font-semibold text-white mb-6">Métodos de Pagamento</h3>
+            
+            <div className="flex justify-center mb-4">
+              <ResponsiveContainer width="100%" height={150}>
+                <RechartsPieChart>
+                  <Pie
+                    data={paymentMethodsData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={40}
+                    outerRadius={70}
+                    paddingAngle={5}
+                    dataKey="value"
+                  >
+                    {paymentMethodsData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                </RechartsPieChart>
+              </ResponsiveContainer>
+            </div>
+            
+            <div className="space-y-3">
+              {paymentMethodsData.map((method) => (
+                <div key={method.name} className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <div 
+                      className="w-3 h-3 rounded-full"
+                      style={{ backgroundColor: method.color }}
+                    />
+                    <span className="text-sm text-white">{method.name}</span>
+                  </div>
+                  <span className="text-sm font-medium text-white">{method.value}%</span>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        </div>
+
+        {/* Barra de Pesquisa e Filtros */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Input 
+                placeholder="Buscar por cliente..." 
+                className="bg-white/10 border-white/20 pl-10 text-white placeholder:text-gray-400"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+            
+            <div className="flex space-x-2">
+              {[
+                { key: 'all', label: 'Todos' },
+                { key: 'paid', label: 'Pagos' },
+                { key: 'pending', label: 'Pendentes' },
+                { key: 'overdue', label: 'Atrasados' }
+              ].map((filter) => (
+                <button
+                  key={filter.key}
+                  onClick={() => setSelectedFilter(filter.key)}
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                    selectedFilter === filter.key
+                      ? 'bg-white text-black'
+                      : 'bg-white/10 text-white hover:bg-white/20'
+                  }`}
+                >
+                  {filter.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
           <div className="flex space-x-2">
-            <Button variant="outline" size="sm" onClick={exportData} className="bg-background/50">
-              <Download className="h-4 w-4 mr-1" />
-              Exportar
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => handleQuickAction('Relatório gerado')}
+              className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+            >
+              <BarChart3 className="h-4 w-4 mr-2" />
+              Relatório
             </Button>
             <Button 
-              size="sm" 
-              onClick={addNewStudent}
-              className="rounded-full w-8 h-8 p-0 bg-[#00FF88] hover:bg-[#00FF88]/80"
+              size="sm"
+              onClick={() => handleQuickAction('Novo pagamento criado')}
+              className="bg-white text-black hover:bg-gray-200"
             >
-              <Plus className="h-4 w-4" />
+              <Plus className="h-4 w-4 mr-2" />
+              Novo Pagamento
             </Button>
           </div>
         </div>
 
-        {/* Barra de busca e filtros */}
-        <div className="flex items-center justify-between mb-4">
-          <div className="relative w-full max-w-sm">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input 
-              placeholder="Buscar por nome ou status..." 
-              className="bg-background/50 border-white/10 pl-10"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="bg-background/50">
-                <Filter className="h-4 w-4 mr-1" />
-                Filtrar
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuItem onClick={() => setSearchTerm('Ativo')}>
-                Somente Ativos
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setSearchTerm('Atrasado')}>
-                Somente Atrasados
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setSearchTerm('Pendente')}>
-                Somente Pendentes
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setSearchTerm('')}>
-                Limpar Filtros
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-
-        {/* Tabela */}
-        <div className="rounded-md overflow-hidden">
-          <Table>
-            <TableHeader className="bg-background/50">
-              <TableRow>
-                <TableHead className="w-[60px]">Foto</TableHead>
-                <TableHead>
-                  <div 
-                    className="flex items-center cursor-pointer" 
-                    onClick={() => handleSort('name')}
+        {/* Lista de Pagamentos */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-white/5 backdrop-blur-md rounded-2xl border border-white/10 overflow-hidden"
+        >
+          <div className="p-6">
+            <h3 className="text-lg font-semibold text-white mb-4">Pagamentos</h3>
+            
+            <div className="space-y-3">
+              <AnimatePresence>
+                {filteredPayments.map((payment, index) => (
+                  <motion.div
+                    key={payment.id}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: 20 }}
+                    transition={{ delay: index * 0.05 }}
+                    whileHover={{ scale: 1.02, backgroundColor: 'rgba(255,255,255,0.1)' }}
+                    className="flex items-center justify-between p-4 rounded-xl border border-white/10 hover:border-white/20 transition-all cursor-pointer"
+                    onClick={() => handleQuickAction('Detalhes visualizados', payment.id)}
                   >
-                    Nome
-                    <ArrowUpDown className="ml-1 h-4 w-4" />
-                  </div>
-                </TableHead>
-                <TableHead>
-                  <div 
-                    className="flex items-center cursor-pointer" 
-                    onClick={() => handleSort('attendance')}
-                  >
-                    Frequência
-                    <ArrowUpDown className="ml-1 h-4 w-4" />
-                  </div>
-                </TableHead>
-                <TableHead>
-                  <div 
-                    className="flex items-center cursor-pointer" 
-                    onClick={() => handleSort('lastPayment')}
-                  >
-                    Último Pagamento
-                    <ArrowUpDown className="ml-1 h-4 w-4" />
-                  </div>
-                </TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Ações</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {getFilteredAndSortedData().length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
-                    Nenhum aluno encontrado
-                  </TableCell>
-                </TableRow>
-              ) : (
-                getFilteredAndSortedData().map((student) => (
-                  <React.Fragment key={student.id}>
-                    <TableRow 
-                      className="transition-colors cursor-pointer hover:bg-white/5"
-                      onClick={() => toggleExpand(student.id)}
-                    >
-                      <TableCell className="p-2">
-                        <Avatar className="h-10 w-10 border border-white/10">
-                          <AvatarImage src={student.photo} alt={student.name} />
-                          <AvatarFallback>{student.name.charAt(0)}</AvatarFallback>
-                        </Avatar>
-                      </TableCell>
-                      <TableCell className="font-medium">{student.name}</TableCell>
-                      <TableCell>
-                        <div className="flex items-center">
-                          <Progress 
-                            value={student.attendance} 
-                            className="h-2 w-16 mr-2 bg-white/20"
-                            indicatorClassName={
-                              student.attendance > 75 ? "bg-green-500" :
-                              student.attendance > 50 ? "bg-amber-500" :
-                              "bg-red-500"
-                            }
-                          />
-                          <span>{student.attendance}%</span>
+                    <div className="flex items-center space-x-4">
+                      <Avatar className="h-12 w-12 border border-white/20">
+                        <AvatarImage src={payment.photo} alt={payment.name} />
+                        <AvatarFallback>{payment.name.charAt(0)}</AvatarFallback>
+                      </Avatar>
+                      
+                      <div>
+                        <div className="flex items-center space-x-2">
+                          <span className="font-medium text-white">{payment.name}</span>
+                          <Badge variant="outline" className="text-xs">
+                            {payment.plan}
+                          </Badge>
                         </div>
-                      </TableCell>
-                      <TableCell className="flex items-center">
-                        {formatDate(student.lastPayment)}
-                        {new Date(student.lastPayment) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) ? (
-                          <CheckCircle className="ml-2 h-4 w-4 text-green-500" />
-                        ) : (
-                          <XCircle className="ml-2 h-4 w-4 text-red-500" />
+                        <div className="flex items-center space-x-3 mt-1">
+                          <span className="text-sm text-gray-400">
+                            Venc: {formatDate(payment.dueDate)}
+                          </span>
+                          <span className="text-sm text-gray-400">
+                            {payment.paymentMethod}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center space-x-4">
+                      <div className="text-right">
+                        <div className="text-lg font-semibold text-white">
+                          {formatCurrency(payment.amount)}
+                        </div>
+                        <div className={`flex items-center space-x-1 text-xs px-2 py-1 rounded-full border ${getStatusColor(payment.status)}`}>
+                          {getStatusIcon(payment.status)}
+                          <span>
+                            {payment.status === 'paid' ? 'Pago' : 
+                             payment.status === 'overdue' ? 'Atrasado' : 'Pendente'}
+                          </span>
+                        </div>
+                      </div>
+                      
+                      <div className="flex space-x-2">
+                        {payment.status !== 'paid' && (
+                          <>
+                            <motion.button
+                              whileHover={{ scale: 1.1 }}
+                              whileTap={{ scale: 0.9 }}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleQuickAction('Notificação enviada', payment.id);
+                              }}
+                              className="p-2 rounded-full bg-blue-500/20 hover:bg-blue-500/30 transition-colors"
+                            >
+                              <Bell className="h-4 w-4 text-blue-400" />
+                            </motion.button>
+                            <motion.button
+                              whileHover={{ scale: 1.1 }}
+                              whileTap={{ scale: 0.9 }}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleQuickAction('Cobrança via WhatsApp', payment.id);
+                              }}
+                              className="p-2 rounded-full bg-green-500/20 hover:bg-green-500/30 transition-colors"
+                            >
+                              <MessageCircle className="h-4 w-4 text-green-400" />
+                            </motion.button>
+                          </>
                         )}
-                      </TableCell>
-                      <TableCell>
-                        <Badge
-                          variant="outline"
-                          className={
-                            student.status === 'Ativo' ? "bg-green-500/20 text-green-500 border-green-500/30" :
-                            student.status === 'Atrasado' ? "bg-red-500/20 text-red-500 border-red-500/30" :
-                            student.status === 'Pendente' ? "bg-amber-500/20 text-amber-500 border-amber-500/30" :
-                            "bg-gray-500/20 text-gray-500 border-gray-500/30"
-                          }
-                        >
-                          {student.status === 'Ativo' && "🟢 "}
-                          {student.status === 'Atrasado' && "🔴 "}
-                          {student.status === 'Pendente' && "🟠 "}
-                          {student.status === 'Inativo' && "⚪ "}
-                          {student.status}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Button 
-                          variant="ghost" 
-                          size="sm"
+                        <motion.button
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.9 }}
                           onClick={(e) => {
                             e.stopPropagation();
-                            sendNotification(student.id);
+                            handleQuickAction('Recibo gerado', payment.id);
                           }}
+                          className="p-2 rounded-full bg-gray-500/20 hover:bg-gray-500/30 transition-colors"
                         >
-                          <Bell className="h-4 w-4 mr-1" />
-                          Notificar
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                    
-                    {/* Linha expandida com detalhes */}
-                    {student.expanded && (
-                      <TableRow className="bg-white/5 border-t-0">
-                        <TableCell colSpan={6} className="p-4">
-                          <div className="grid grid-cols-3 gap-4">
-                            <div>
-                              <h4 className="text-sm font-medium mb-1">Valor do Plano</h4>
-                              <p>{formatCurrency(student.value)}</p>
-                            </div>
-                            <div>
-                              <h4 className="text-sm font-medium mb-1">Próximo Pagamento</h4>
-                              <p>{formatDate(student.nextPayment)}</p>
-                            </div>
-                            <div>
-                              <h4 className="text-sm font-medium mb-1">Ações Rápidas</h4>
-                              <div className="flex space-x-2">
-                                <Button variant="outline" size="sm">
-                                  Editar
-                                </Button>
-                                <Button variant="outline" size="sm">
-                                  Histórico
-                                </Button>
-                              </div>
-                            </div>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    )}
-                  </React.Fragment>
-                ))
-              )}
-            </TableBody>
-          </Table>
+                          <Receipt className="h-4 w-4 text-gray-400" />
+                        </motion.button>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Floating Action Buttons */}
+        <div className="fixed bottom-8 right-8 space-y-3">
+          <motion.button
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            onClick={() => handleQuickAction('Cobrança automática configurada')}
+            className="w-14 h-14 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full shadow-lg flex items-center justify-center text-white"
+          >
+            <Zap className="h-6 w-6" />
+          </motion.button>
+          
+          <motion.button
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            onClick={() => handleQuickAction('PIX instantâneo enviado')}
+            className="w-14 h-14 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full shadow-lg flex items-center justify-center text-white"
+          >
+            <Smartphone className="h-6 w-6" />
+          </motion.button>
         </div>
 
-        {/* Botão flutuante para novo aluno em telas pequenas */}
-        <Button 
-          className="md:hidden fixed bottom-6 right-6 rounded-full w-12 h-12 p-0 bg-[#00FF88] hover:bg-[#00FF88]/80 shadow-lg"
-          onClick={addNewStudent}
+        {/* Rodapé de Segurança */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-black/40 backdrop-blur-md rounded-2xl p-6 border border-white/10"
         >
-          <Plus className="h-6 w-6" />
-        </Button>
+          <div className="flex items-center justify-center space-x-8">
+            <div className="flex items-center space-x-2">
+              <Shield className="h-5 w-5 text-green-400" />
+              <span className="text-sm text-gray-300">Criptografia PCI Nível 1</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <CreditCard className="h-5 w-5 text-blue-400" />
+              <span className="text-sm text-gray-300">Integrado com PagBank e Mercado Pago</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Activity className="h-5 w-5 text-purple-400" />
+              <span className="text-sm text-gray-300">Reconciliação automática</span>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Spacer para floating buttons */}
+        <div className="h-32" />
       </div>
     </MainLayout>
   );
