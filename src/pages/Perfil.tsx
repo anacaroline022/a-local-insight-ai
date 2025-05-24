@@ -12,7 +12,7 @@ import {
   UserPlus, 
   TrendingUp,
   Edit3,
-  Refresh,
+  RefreshCw,
   BarChart3,
   Activity,
   Zap,
@@ -149,7 +149,7 @@ const Perfil: React.FC = () => {
               animate={{ rotate: [0, 360] }}
               transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
             >
-              <Refresh className="h-5 w-5 text-blue-600" />
+              <RefreshCw className="h-5 w-5 text-blue-600" />
             </motion.div>
           </motion.button>
         </div>
